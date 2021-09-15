@@ -76,6 +76,13 @@ public class VersionUtil {
 		}
 		return player.getInventory().getBoots().containsEnchantment(Enchantment.FROST_WALKER);
 	}
+	
+	public static boolean isSoulSpeed(final ItemStack boots) {
+		if (!CURRENT_VERSION.isAtLeast(MinecraftVersion.NETHER_UPDATE)) {
+			return false;
+		}
+		return boots.containsEnchantment(Enchantment.SOUL_SPEED);
+	}
 
 	public static ItemStack getItemInHand(final Player player) {
 		return player.getInventory().getItemInMainHand();

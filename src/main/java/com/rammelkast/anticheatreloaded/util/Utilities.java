@@ -269,6 +269,41 @@ public final class Utilities {
 				|| isSlime(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
 				|| isSlime(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
 	}
+	
+	/**
+	 * Determine whether a player could be standing on soil
+	 *
+	 * @param location the location to check
+	 * @return true if the player could be standing on soil
+	 */
+	public static boolean couldBeOnSoil(Location location) {
+		return isNearSoil(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
+				location.getBlockZ()))
+				|| isNearSoil(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.51D,
+						location.getBlockZ()));
+	}
+
+	/**
+	 * Determine whether a block is a type of soil
+	 *
+	 * @param block block to check
+	 * @return true if block is a type of soil
+	 */
+	public static boolean isSoil(Block block) {
+		Material type = block.getType();
+		return type.equals(XMaterial.SOUL_SOIL.parseMaterial()) || type.equals(XMaterial.SOUL_SAND.parseMaterial());
+	}
+
+	public static boolean isNearSoil(Location location) {
+		return isSoil(location.getBlock()) || isSoil(location.getBlock().getRelative(BlockFace.NORTH))
+				|| isSoil(location.getBlock().getRelative(BlockFace.SOUTH))
+				|| isSoil(location.getBlock().getRelative(BlockFace.EAST))
+				|| isSoil(location.getBlock().getRelative(BlockFace.WEST))
+				|| isSoil(location.getBlock().getRelative(BlockFace.NORTH_EAST))
+				|| isSoil(location.getBlock().getRelative(BlockFace.NORTH_WEST))
+				|| isSoil(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
+				|| isSoil(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
+	}
 
 	/**
 	 * Determine whether a player is fully submerged in water

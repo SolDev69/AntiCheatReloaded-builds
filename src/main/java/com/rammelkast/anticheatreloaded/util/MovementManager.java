@@ -41,6 +41,8 @@ public final class MovementManager {
 	public int iceInfluenceTicks = 0;
 	// Ticks influenced by slime
 	public int slimeInfluenceTicks = 0;
+	// Ticks influenced by soil
+	public int soilInfluenceTicks = 0;
 	// Y motion of the movement
 	public double motionY;
 	// Previous Y motion of the movement
@@ -160,6 +162,14 @@ public final class MovementManager {
 			this.slimeTicks = 0;
 			if (this.slimeInfluenceTicks > 0) {
 				this.slimeInfluenceTicks--;
+			}
+		}
+		
+		if (Utilities.couldBeOnSoil(to)) {
+			this.soilInfluenceTicks = 6;
+		} else {
+			if (this.soilInfluenceTicks > 0) {
+				this.soilInfluenceTicks--;
 			}
 		}
 
