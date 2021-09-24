@@ -48,10 +48,10 @@ public final class KillAuraCheck {
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
 	public static CheckResult checkReach(final Player player, final Entity target) {
-		if (!(target instanceof LivingEntity)) {
+		if (!(target instanceof LivingEntity) || player.getVehicle() != null || target.getVehicle() != null) {
 			return PASS;
 		}
-		
+
 		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(player.getUniqueId());
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
@@ -100,6 +100,11 @@ public final class KillAuraCheck {
 
 		// Check if enabled
 		if (!checksConfig.isSubcheckEnabled(CheckType.KILLAURA, "angle")) {
+			return PASS;
+		}
+		
+		// Do not check while in vehicles
+		if (player.getVehicle() != null || entity.getVehicle() != null) {
 			return PASS;
 		}
 
