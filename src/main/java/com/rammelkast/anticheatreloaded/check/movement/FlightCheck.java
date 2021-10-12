@@ -36,6 +36,7 @@ import com.rammelkast.anticheatreloaded.util.Distance;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
+import com.rammelkast.anticheatreloaded.util.VelocityTracker;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 /**
@@ -61,6 +62,7 @@ public final class FlightCheck {
 
 		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(player.getUniqueId());
 		final MovementManager movementManager = user.getMovementManager();
+		final VelocityTracker velocityTracker = user.getVelocityTracker();
 		final Backend backend = AntiCheatReloaded.getManager().getBackend();
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
@@ -80,7 +82,7 @@ public final class FlightCheck {
 
 		// Start AirFlight
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airFlight") && movementManager.airTicks > minAirTicks
-				&& !backend.justVelocity(player) && movementManager.elytraEffectTicks <= 25) {
+				&& !velocityTracker.isVelocitized() && movementManager.elytraEffectTicks <= 25) {
 			// Config default base is 1200ms
 			// Ping clamped to max. 1000 to prevent spoofing for an advantage
 			int blockPlaceAccountingTime = (int) (checksConfig.getInteger(CheckType.FLIGHT, "airFlight",
@@ -139,7 +141,7 @@ public final class FlightCheck {
 				&& Math.round(movementManager.motionY * 1000) != 248
 				&& !(Math.round(movementManager.motionY * 1000) == 333
 						&& Math.round(movementManager.lastMotionY * 1000) != 333)
-				&& !AntiCheatReloaded.getManager().getBackend().justVelocity(player)
+				&& !velocityTracker.isVelocitized()
 				&& !player.hasPotionEffect(PotionEffectType.JUMP)
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))
@@ -153,7 +155,7 @@ public final class FlightCheck {
 
 		// TODO hardcoded value against false again..
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.motionY > 0.42
-				&& movementManager.airTicks > 2 && !AntiCheatReloaded.getManager().getBackend().justVelocity(player)
+				&& movementManager.airTicks > 2 && !velocityTracker.isVelocitized()
 				&& !player.hasPotionEffect(PotionEffectType.JUMP)
 				&& !(Math.round(movementManager.motionY * 1000) == 425 && movementManager.airTicks == 11)
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
@@ -166,7 +168,7 @@ public final class FlightCheck {
 		// TODO hardcoded value against false
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
 				&& movementManager.lastMotionY < 0 && movementManager.motionY > 0
-				&& !AntiCheatReloaded.getManager().getBackend().justVelocity(player)
+				&& !velocityTracker.isVelocitized()
 				&& movementManager.elytraEffectTicks <= 25
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))
@@ -188,7 +190,7 @@ public final class FlightCheck {
 
 		// Start Gravity
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "gravity") && !movementManager.onGround
-				&& movementManager.motionY < 0 && !backend.justVelocity(player)
+				&& movementManager.motionY < 0 && !velocityTracker.isVelocitized()
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "gravity", "accountForTeleports"))
 				&& !Utilities.isNearWeb(player) && movementManager.elytraEffectTicks <= 25

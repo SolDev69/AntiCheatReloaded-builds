@@ -38,7 +38,7 @@ public class UpdateManager {
 	private boolean isAhead;
 
 	public UpdateManager() {
-		this.update();
+		update();
 	}
 	
 	public void update() {
@@ -59,26 +59,25 @@ public class UpdateManager {
 		this.isAhead = splitCompare > 0;
 	}
 
-	private String getOnlineData(String url) {
+	private String getOnlineData(final String url) {
 		String data = null;
 		InputStream stream = null;
 		try {
 			stream = new URL(url).openStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-			StringBuilder builder = new StringBuilder();
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+			final StringBuilder builder = new StringBuilder();
 			int readChar;
 			while ((readChar = reader.read()) != -1) {
 				builder.append((char) readChar);
 			}
 			data = builder.toString();
 			reader.close();
-		} catch (IOException exception) {}
+		} catch (final IOException exception) {}
 		finally {
 			if (stream != null) {
 				try {
 					stream.close();
-				} catch (IOException e) {
-				}
+				} catch (final IOException e) {}
 			}
 		}
 		return data;
@@ -110,19 +109,20 @@ public class UpdateManager {
 				version = version.substring(0, version.length() - 4);
 			}
 
-			String[] versionSplit = version.split("\\.");
+			final String[] versionSplit = version.split("\\.");
 			if (versionSplit.length != 3) {
 				// Illegal version
 				throw new Exception("Version " + version + " is illegal!");
 			}
 
 			try {
-				int major = Integer.parseInt(versionSplit[0]);
-				int minor = Integer.parseInt(versionSplit[1]);
-				int build = Integer.parseInt(versionSplit[2]);
+				final int major = Integer.parseInt(versionSplit[0]);
+				final int minor = Integer.parseInt(versionSplit[1]);
+				final int build = Integer.parseInt(versionSplit[2]);
 				if (major <= 0) {
 					throw new Exception("Illegal version!");
 				}
+				
 				this.major = major;
 				this.minor = minor;
 				this.build = build;

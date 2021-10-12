@@ -14,7 +14,7 @@ Issues should be filed by hitting the [issues](https://github.com/Rammelkast/Ant
 
 Please include the following information with your issue, this allows me to fix it quicker;
 * Your AntiCheatReloaded version
-* Your server implementation (Craftbukkit/Spigot/Other) and it's version
+* Your server implementation (Bukkit/Spigot/Other) and it's version
 * Your ProtocolLib version
 * Whether or not you are using protocol hacks (ViaVersion etc.)
 * Any logs relating to the issue

@@ -25,11 +25,13 @@ import org.bukkit.util.Vector;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
-import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
+import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
+import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
+import com.rammelkast.anticheatreloaded.util.VelocityTracker;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 /**
@@ -49,8 +51,14 @@ public final class StrafeCheck {
 			return PASS;
 		}
 
-		final MovementManager movementManager = AntiCheatReloaded.getManager().getUserManager()
-				.getUser(player.getUniqueId()).getMovementManager();
+		final User user = AntiCheatReloaded.getManager().getUserManager()
+				.getUser(player.getUniqueId());
+		final MovementManager movementManager = user.getMovementManager();
+		final VelocityTracker velocityTracker = user.getVelocityTracker();
+		if (velocityTracker.isVelocitized()) {
+			return PASS;
+		}
+		
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
 		if (System.currentTimeMillis() - movementManager.lastTeleport <= checksConfig.getInteger(CheckType.STRAFE,

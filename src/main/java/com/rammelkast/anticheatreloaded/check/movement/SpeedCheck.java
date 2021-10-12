@@ -32,7 +32,9 @@ import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.Distance;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
+import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
+import com.rammelkast.anticheatreloaded.util.VelocityTracker;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 /**
@@ -42,8 +44,8 @@ public final class SpeedCheck {
 
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
-	public static boolean isSpeedExempt(final Player player, final Backend backend) {
-		return backend.isMovingExempt(player) || backend.justVelocity(player) || VersionUtil.isFlying(player);
+	private static boolean isSpeedExempt(final Player player, final Backend backend) {
+		return backend.isMovingExempt(player) || VersionUtil.isFlying(player);
 	}
 
 	public static CheckResult checkXZSpeed(final Player player, final double x, final double z,
@@ -53,8 +55,11 @@ public final class SpeedCheck {
 			return PASS;
 		}
 
-		final MovementManager movementManager = AntiCheatReloaded.getManager().getUserManager()
-				.getUser(player.getUniqueId()).getMovementManager();
+		final User user = AntiCheatReloaded.getManager().getUserManager()
+				.getUser(player.getUniqueId());
+		final MovementManager movementManager = user.getMovementManager();
+		final VelocityTracker velocityTracker = user.getVelocityTracker();
+
 		// Riptiding exemption
 		if (movementManager.riptideTicks > 0) {
 			return PASS;
@@ -177,6 +182,9 @@ public final class SpeedCheck {
 					&& movementManager.motionY < -0.18 && movementManager.motionY > -0.182) {
 				predict += Math.abs(movementManager.motionY);
 			}
+			
+			// Adjust for velocity
+			predict += velocityTracker.getHorizontal() * 0.8D;
 
 			if (distanceXZ - predict > limit) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirSpeed",
@@ -223,6 +231,9 @@ public final class SpeedCheck {
 			if (Utilities.couldBeOnBoat(player)) {
 				limit *= 1.25D;
 			}
+			
+			// Add velocity
+			limit += velocityTracker.getHorizontal() * 0.8D;
 
 			if (initialAcceleration > limit) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirAcceleration",

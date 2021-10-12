@@ -22,6 +22,7 @@ package com.rammelkast.anticheatreloaded.manage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
@@ -102,13 +103,7 @@ public final class UserManager {
 	 * @param group Group to find users of
 	 */
 	public List<User> getUsersInGroup(final Group group) {
-		final List<User> list = new ArrayList<User>();
-		for (final User user : users) {
-			if (user.getGroup() == group) {
-				list.add(user);
-			}
-		}
-		return list;
+		return this.users.parallelStream().filter(user -> user.getGroup() == group).collect(Collectors.toList());
 	}
 
 	/**

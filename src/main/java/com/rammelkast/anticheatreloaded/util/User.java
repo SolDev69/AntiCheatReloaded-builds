@@ -32,6 +32,8 @@ import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.Configuration;
 import com.rammelkast.anticheatreloaded.util.rule.Rule;
 
+import lombok.Getter;
+
 public final class User {
 	private final UUID uuid;
 	private final String name;
@@ -52,7 +54,10 @@ public final class User {
 	private int ping = -1;
 	private int lastPing = -1;
 
-	private final MovementManager movementManager = new MovementManager();
+	@Getter
+	private final MovementManager movementManager;
+	@Getter
+	private final VelocityTracker velocityTracker;
 
 	/**
 	 * Initialize an AntiCheat user
@@ -64,6 +69,10 @@ public final class User {
 		this.name = getPlayer() != null && getPlayer().isOnline() ? getPlayer().getName() : "";
 		this.id = getPlayer() != null && getPlayer().isOnline() ? getPlayer().getEntityId() : -1;
 		this.ping = getPlayer() != null && getPlayer().isOnline() ? VersionUtil.getPlayerPing(getPlayer()) : -1;
+		
+		this.movementManager = new MovementManager();
+		this.velocityTracker = new VelocityTracker(this.config.getMagic().VELOCITY_TIME());
+		
         setIsWaitingOnLevelSync(true);
         config.getLevels().loadLevelToUser(this);
 	}
@@ -412,7 +421,7 @@ public final class User {
 	}
 
 	public int getLastPing() {
-		int lastPing = this.lastPing;
+		final int lastPing = this.lastPing;
 		if (lastPing < 0) {
 			return this.getPing();
 		}
@@ -422,10 +431,6 @@ public final class User {
 	public boolean isLagging() {
 		return Math.abs(this.ping - this.lastPing) > config.getMagic().LAG_DETERMINATION()
 				&& this.ping > config.getMagic().LAG_DETERMINATION();
-	}
-
-	public MovementManager getMovementManager() {
-		return this.movementManager;
 	}
 
 	@Override

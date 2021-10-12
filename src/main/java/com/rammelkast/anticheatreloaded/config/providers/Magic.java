@@ -63,21 +63,9 @@ public interface Magic {
      */
     public int EXPLOSION_DAMAGE_TIME();
     /**
-     * Time used to schedule increasing a players velocity count - probably not touching this would be good; Type=INTEGER.
-     */
-    public int VELOCITY_EXTENSION();
-    /**
      * Time a player is considered to have a change in velocity; Type=SYSTEM, Leniency=INCREASE.
      */
     public int VELOCITY_TIME();
-    /**
-     * Time to extend a player's velocity count by; Type=SYSTEM, Leniency=INCREASE.
-     */
-    public int VELOCITY_PREVENT();
-    /**
-     * Maximum amount of velocity tracks; Type=INTEGER, Leniency=INCREASE.
-     */
-    public int VELOCITY_MAXTIMES();
     /**
      * Minimum travel distance for move to be considered a teleport and subsequently be ignored; Type=INTEGER, Leniency=INCREASE.
      */

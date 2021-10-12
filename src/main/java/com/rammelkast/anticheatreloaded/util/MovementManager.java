@@ -81,6 +81,8 @@ public final class MovementManager {
 	public int elytraEffectTicks;
 	// Used by Velocity check, represents the currently expected Y motion
 	public double velocityExpectedMotionY;
+	// Used by Velocity check, represents the currently expected XZ motion
+	public double velocityExpectedMotionXZ;
 	// Amount of ticks a player is sneaking
 	public int sneakingTicks;
 	// Ticks counter after being near a liquid
@@ -243,7 +245,11 @@ public final class MovementManager {
 		}
 
 		this.lastUpdate = System.currentTimeMillis();
+		
+		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(player.getUniqueId());
+		// Tick velocity tracker
+		user.getVelocityTracker().tick();
 		// Update "good location"
-		AntiCheatReloaded.getManager().getUserManager().getUser(player.getUniqueId()).setGoodLocation(from);
+		user.setGoodLocation(from);
 	}
 }

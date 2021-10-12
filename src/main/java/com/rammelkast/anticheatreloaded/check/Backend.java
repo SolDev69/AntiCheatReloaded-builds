@@ -53,7 +53,6 @@ import com.rammelkast.anticheatreloaded.util.VersionUtil;
 public class Backend {
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
-	public final Map<UUID, Long> velocitized = new HashMap<UUID, Long>();
 	public final Map<UUID, Long> placedBlock = new HashMap<UUID, Long>();
 	
 	private final Map<UUID, Long> levitatingEnd = new HashMap<UUID, Long>();
@@ -64,7 +63,6 @@ public class Backend {
 	private final Map<UUID, Long> lastBlockPlaced = new HashMap<UUID, Long>();
 	private final Map<UUID, Long> lastBlockPlaceTime = new HashMap<UUID, Long>();
 	private final Map<UUID, Integer> projectilesShot = new HashMap<UUID, Integer>();
-	private final Map<UUID, Integer> velocitytrack = new HashMap<UUID, Integer>();
 	private final Map<UUID, Long> startEat = new HashMap<UUID, Long>();
 	private final Map<UUID, Long> lastHeal = new HashMap<UUID, Long>();
 	private final Map<UUID, Long> projectileTime = new HashMap<UUID, Long>();
@@ -113,8 +111,6 @@ public class Backend {
 		lastBlockPlaced.remove(uuid);
 		lastBlockPlaceTime.remove(uuid);
 		projectilesShot.remove(uuid);
-		velocitized.remove(uuid);
-		velocitytrack.remove(uuid);
 		startEat.remove(uuid);
 		lastHeal.remove(uuid);
 		projectileTime.remove(uuid);
@@ -204,7 +200,7 @@ public class Backend {
 		return PASS;
 	}
 
-	public CheckResult checkSpider(Player player, double y) {
+	public CheckResult checkSpider(final Player player, final double y) {
 		if (y <= 0.11761 && y >= 0.11759 && !Utilities.isClimbableBlock(player.getLocation().getBlock())
 				&& !Utilities.isClimbableBlock(player.getEyeLocation().getBlock())
 				&& !Utilities.isClimbableBlock(player.getLocation().clone().add(0, -0.98, 0).getBlock())
@@ -216,8 +212,8 @@ public class Backend {
 		}
 	}
 
-	public CheckResult checkNoFall(Player player, double y) {
-		UUID uuid = player.getUniqueId();
+	public CheckResult checkNoFall(final Player player, final double y) {
+		final UUID uuid = player.getUniqueId();
 		if (player.getGameMode() != GameMode.CREATIVE && !player.isInsideVehicle() && !player.isSleeping()
 				&& !isMovingExempt(player) && !justPlaced(player) && !Utilities.isNearWater(player)
 				&& !Utilities.isInWeb(player) && !player.getLocation().getBlock().getType().name().endsWith("TRAPDOOR")
@@ -512,45 +508,14 @@ public class Backend {
 		sprinted.put(player.getUniqueId(), System.currentTimeMillis());
 	}
 
-	public void logVelocity(final Player player) {
-		velocitized.put(player.getUniqueId(), System.currentTimeMillis());
-	}
-
 	public void logLevitating(final Player player, final int duration) {
 		levitatingEnd.put(player.getUniqueId(), System.currentTimeMillis() + (duration * 1000L));
-	}
-
-	public boolean justVelocity(final Player player) {
-		return (velocitized.containsKey(player.getUniqueId())
-				? (System.currentTimeMillis() - velocitized.get(player.getUniqueId())) < magic.VELOCITY_TIME()
-				: false);
 	}
 
 	public boolean justLevitated(final Player player) {
 		return (levitatingEnd.containsKey(player.getUniqueId())
 				? (System.currentTimeMillis() - levitatingEnd.get(player.getUniqueId())) < magic.VELOCITY_TIME()
 				: false);
-	}
-
-	public boolean extendVelocityTime(final Player player) {
-		if (velocitytrack.containsKey(player.getUniqueId())) {
-			velocitytrack.put(player.getUniqueId(), velocitytrack.get(player.getUniqueId()) + 1);
-			if (velocitytrack.get(player.getUniqueId()) > magic.VELOCITY_MAXTIMES()) {
-				velocitized.put(player.getUniqueId(), System.currentTimeMillis() + magic.VELOCITY_PREVENT());
-				manager.getPlugin().getServer().getScheduler().scheduleSyncDelayedTask(manager.getPlugin(),
-						new Runnable() {
-							@Override
-							public void run() {
-								velocitytrack.put(player.getUniqueId(), 0);
-							}
-						}, magic.VELOCITY_EXTENSION() * 20L);
-				return true;
-			}
-		} else {
-			velocitytrack.put(player.getUniqueId(), 0);
-		}
-
-		return false;
 	}
 
 	public void logBlockPlace(final Player player) {

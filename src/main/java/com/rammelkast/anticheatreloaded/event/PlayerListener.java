@@ -57,6 +57,7 @@ import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.util.Vector;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
@@ -71,6 +72,7 @@ import com.rammelkast.anticheatreloaded.check.movement.SpeedCheck;
 import com.rammelkast.anticheatreloaded.check.movement.StrafeCheck;
 import com.rammelkast.anticheatreloaded.check.movement.WaterWalkCheck;
 import com.rammelkast.anticheatreloaded.check.player.IllegalInteract;
+import com.rammelkast.anticheatreloaded.manage.AntiCheatManager;
 import com.rammelkast.anticheatreloaded.util.Distance;
 import com.rammelkast.anticheatreloaded.util.Permission;
 import com.rammelkast.anticheatreloaded.util.User;
@@ -80,6 +82,8 @@ import com.rammelkast.anticheatreloaded.util.XMaterial;
 
 public final class PlayerListener extends EventListener {
 
+	private static final AntiCheatManager MANAGER = AntiCheatReloaded.getManager();
+	
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		final Player player = event.getPlayer();
@@ -95,7 +99,7 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -104,7 +108,7 @@ public final class PlayerListener extends EventListener {
 			getBackend().logEnterExit(event.getPlayer());
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -113,7 +117,7 @@ public final class PlayerListener extends EventListener {
 			getBackend().logEnterExit(event.getPlayer());
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -134,20 +138,20 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerTeleport(final PlayerTeleportEvent event) {
 		getBackend().logTeleport(event.getPlayer());
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerChangeWorlds(final PlayerChangedWorldEvent event) {
 		getBackend().logTeleport(event.getPlayer());
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -163,24 +167,30 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onPlayerVelocity(PlayerVelocityEvent event) {
+	public void onPlayerVelocity(final PlayerVelocityEvent event) {
 		final Player player = event.getPlayer();
-		getBackend().logVelocity(player);
+		final Vector velocity = event.getVelocity();
+		final User user = MANAGER.getUserManager().getUser(player.getUniqueId());
+		final boolean debugMode = MANAGER.getConfiguration().getConfig().debugMode.getValue();
+		user.getVelocityTracker().registerVelocity(velocity);
+		if (debugMode) {
+			player.sendMessage(AntiCheatReloaded.PREFIX + "Registered velocity [" + velocity.toString() + "]");
+		}
 
 		// Part of Velocity check
-		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(event.getPlayer().getUniqueId());
 		if (!user.getMovementManager().onGround) {
 			return;
 		}
-		final double motionY = event.getVelocity().getY();
+		
+		final double motionY = velocity.getY();
 		user.getMovementManager().velocityExpectedMotionY = motionY;
 		// End part of Velocity check
 		
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -218,14 +228,14 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerKick(PlayerKickEvent event) {
 		getBackend().cleanup(event.getPlayer());
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -247,7 +257,7 @@ public final class PlayerListener extends EventListener {
 			return;
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -273,7 +283,7 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -309,7 +319,7 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -323,7 +333,7 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -333,7 +343,7 @@ public final class PlayerListener extends EventListener {
 		}
 		getBackend().logEnterExit(event.getPlayer());
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -343,7 +353,7 @@ public final class PlayerListener extends EventListener {
 		}
 		getBackend().logEnterExit(event.getPlayer());
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -367,7 +377,7 @@ public final class PlayerListener extends EventListener {
 			return;
 		}
 		
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 
 		if (player.hasPermission("anticheat.admin") && !AntiCheatReloaded.getUpdateManager().isLatest()) {
 			player.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "ACR " + ChatColor.GRAY
@@ -522,7 +532,7 @@ public final class PlayerListener extends EventListener {
 			}
 		}
 
-		AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
+		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
