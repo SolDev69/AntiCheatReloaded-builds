@@ -99,9 +99,9 @@ strafe:
   # How many milliseconds to account for teleports
   accountForTeleports: 300
   # Maximum angle change when moving in air
-  maxAngleChange: 0.5
+  maxAngleChange: 0.58
   # Minimum movement distance for the strafe check to be active
-  minActivationDistance: 0.04
+  minActivationDistance: 0.05
 # WaterWalk check settings
 # Checks if a player is walking on water
 waterwalk:
@@ -174,7 +174,7 @@ killaura:
     # Should this part of the check be enabled?
     enabled: true
     # Maximum difference in angle from the players view
-    maxDifference: 50
+    maxDifference: 60
     # Amount of illegally angled hits before flagging
     vlBeforeFlag: 3
   # Checks if the player has a suspicious packet order
@@ -193,10 +193,10 @@ killaura:
 aimbot:
   # Should this check be enabled?
   enabled: true
-  # Minimum yaw difference when repeated
-  minYaw: 30
-  # Maximum yaw difference when repeated
-  maxYaw: 355
+  # Maximum gcd value for check to consider aim illegal
+  maxGcd: 0.002
+  # Maximum mod value for check to consider aim illegal
+  maxMod: 0.003
 # Criticals check settings
 # Checks if the player tries to do a crit without needed conditions
 criticals:
@@ -269,11 +269,11 @@ morepackets:
   # Should this check be enabled?
   enabled: true
   # Minimum server TPS needed for MorePackets to be active
-  minimumTps: 17.5
+  minimumTps: 18.5
   # Maximum amount of lag compensation a player can acquire (50ms = 1 tick)
-  minimumClamp: 1200
+  minimumClamp: 1250
   # The amount of milliseconds offset between packets before flagging (50ms = 1 tick)
-  triggerBalance: 150
+  triggerBalance: 200
   # The amount of milliseconds to compensate for a teleport (50ms = 1 tick)
   teleportCompensation: 500
   # Should this check be disabled for 'lagging' players?

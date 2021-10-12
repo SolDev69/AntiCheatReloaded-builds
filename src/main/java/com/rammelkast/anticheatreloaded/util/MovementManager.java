@@ -59,6 +59,14 @@ public final class MovementManager {
 	public double lastDistanceX;
 	// Previous horizontal distance on z-axis of movement
 	public double lastDistanceZ;
+	// Delta pitch
+	public float deltaPitch;
+	// Delta yaw
+	public float deltaYaw;
+	// Previous delta pitch
+	public float lastDeltaPitch;
+	// Previous delta yaw
+	public float lastDeltaYaw;
 	// If the player touched the ground again this tick
 	public boolean touchedGroundThisTick = false;
 	// Last recorded distance
@@ -117,6 +125,11 @@ public final class MovementManager {
 		this.distanceXZ = Math.sqrt(x * x + z * z);
 		this.distanceX = x;
 		this.distanceZ = z;
+		
+		this.lastDeltaPitch = this.deltaPitch;
+		this.lastDeltaYaw = this.deltaYaw;
+		this.deltaPitch = Math.abs(to.getPitch() - from.getPitch());
+		this.deltaYaw = Math.abs(Utilities.computeAngleDifference(to.getYaw(), from.getYaw()));
 
 		// Account for standing on boat
 		if (Utilities.couldBeOnBoat(player, 0.25, true) && !Utilities.isSubmersed(player)) {

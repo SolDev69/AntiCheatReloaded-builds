@@ -35,7 +35,6 @@ import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
 import com.rammelkast.anticheatreloaded.check.combat.KillAuraCheck;
 import com.rammelkast.anticheatreloaded.check.combat.VelocityCheck;
-import com.rammelkast.anticheatreloaded.check.movement.AimbotCheck;
 import com.rammelkast.anticheatreloaded.check.movement.ElytraCheck;
 import com.rammelkast.anticheatreloaded.check.movement.FlightCheck;
 import com.rammelkast.anticheatreloaded.check.movement.NoSlowCheck;
@@ -125,7 +124,6 @@ public class Backend {
 		fastSneakViolations.remove(uuid);
 		lastSneak.remove(uuid);
 		levitatingEnd.remove(uuid);
-		AimbotCheck.LAST_DELTA_YAW.remove(uuid);
 		VelocityCheck.VIOLATIONS.remove(uuid);
 		MorePacketsCheck.LAST_PACKET_TIME.remove(uuid);
 		MorePacketsCheck.PACKET_BALANCE.remove(uuid);

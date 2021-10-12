@@ -840,7 +840,40 @@ public final class Utilities {
 		}
 		return block.getType() == XMaterial.HONEY_BLOCK.parseMaterial();
 	}
+	
+	/**
+	 * Computes the difference between two angles
+	 * @param a Angle A
+	 * @param b Angle B
+	 * @return the difference between two angles
+	 */
+	public static float computeAngleDifference(final float a, final float b) {
+		float diff = Math.abs(a - b);
+		final float altDiff = b + 360 - a;
+		final float altAltDiff = a + 360 - b;
+        if (altDiff < diff) diff = altDiff;
+        if (altAltDiff < diff) diff = altAltDiff;
+        return diff;
+    }
 
+	/**
+	 * Calculates the greatest common divider
+	 * @param a value a
+	 * @param b value b
+	 * @return the greatest common divider of a and b
+	 */
+	public static double computeGcd(final double a, final double b) {
+		if (a < b) {
+			return computeGcd(b, a);
+		}
+
+		if (Math.abs(b) < 0.001) {
+			return a;
+		} else {
+			return computeGcd(b, a - Math.floor(a / b) * b);
+		}
+    }
+	
 	static {
 		MinecraftVersion currentVersion = MinecraftVersion.getCurrentVersion();
 

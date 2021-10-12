@@ -62,7 +62,6 @@ public final class ElytraCheck {
 			// Tident added in 1.13
 			if (player.getInventory().getItemInMainHand().getType() == XMaterial.TRIDENT.parseMaterial()) {
 				if (upwardMovement) {
-					// TODO continue check here
 					JUMP_Y_VALUE.remove(uuid);
 					return PASS;
 				}

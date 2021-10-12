@@ -28,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
-import com.rammelkast.anticheatreloaded.check.Backend;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
@@ -55,15 +54,13 @@ public final class FlightCheck {
 				|| VersionUtil.isFlying(player) || player.getVehicle() != null
 				|| AntiCheatReloaded.getManager().getBackend().isMovingExempt(player)) {
 			// This was a teleport or user is flying/using elytra/in a vehicle, so we don't
-			// care
-			// about it.
+			// care about it.
 			return PASS;
 		}
 
 		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(player.getUniqueId());
 		final MovementManager movementManager = user.getMovementManager();
 		final VelocityTracker velocityTracker = user.getVelocityTracker();
-		final Backend backend = AntiCheatReloaded.getManager().getBackend();
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
 		if (movementManager.nearLiquidTicks > 0 || movementManager.halfMovement || Utilities.isNearClimbable(player)
@@ -133,8 +130,6 @@ public final class FlightCheck {
 		// End AirFlight
 
 		// Start AirClimb
-		// TODO three hardcoded values here shouldn't be there, temp against false
-		// positive
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.lastMotionY > 0
 				&& movementManager.motionY > 0 && movementManager.airTicks == 2
 				&& Math.round(movementManager.lastMotionY * 1000) != 420
@@ -153,7 +148,6 @@ public final class FlightCheck {
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
 					"tried to climb air (mY=" + movementManager.motionY + ")");
 
-		// TODO hardcoded value against false again..
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.motionY > 0.42
 				&& movementManager.airTicks > 2 && !velocityTracker.isVelocitized()
 				&& !player.hasPotionEffect(PotionEffectType.JUMP)
@@ -165,7 +159,6 @@ public final class FlightCheck {
 					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
 		}
 
-		// TODO hardcoded value against false
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
 				&& movementManager.lastMotionY < 0 && movementManager.motionY > 0
 				&& !velocityTracker.isVelocitized()
@@ -173,6 +166,15 @@ public final class FlightCheck {
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))
 				&& !(Math.round(movementManager.motionY * 1000) == 396) && movementManager.airTicks == 15) {
+			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
+					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+		}
+		
+		if (movementManager.airTicks >= minAirTicks && movementManager.motionY > 0
+				&& velocityTracker.getVertical() <= 0.0D && movementManager.slimeInfluenceTicks <= 0
+				&& movementManager.elytraEffectTicks <= 25
+				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
+						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))) {
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
 					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
 		}
@@ -195,8 +197,8 @@ public final class FlightCheck {
 						.getInteger(CheckType.FLIGHT, "gravity", "accountForTeleports"))
 				&& !Utilities.isNearWeb(player) && movementManager.elytraEffectTicks <= 25
 				&& !VersionUtil.isSlowFalling(player)) {
-			double gravitatedY = (movementManager.lastMotionY - 0.08) * GRAVITY_FRICTION;
-			double offset = Math.abs(gravitatedY - movementManager.motionY);
+			final double gravitatedY = (movementManager.lastMotionY - 0.08) * GRAVITY_FRICTION;
+			final double offset = Math.abs(gravitatedY - movementManager.motionY);
 			double maxOffset = checksConfig.getDouble(CheckType.FLIGHT, "gravity", "maxOffset");
 			if (Utilities.isNearClimbable(distance.getFrom().clone().subtract(0, 0.51D, 0))
 					|| Utilities.isNearClimbable(distance.getFrom()) || Utilities.isNearWater(player)
@@ -214,7 +216,7 @@ public final class FlightCheck {
 				}
 			} else {
 				if (GRAVITY_VIOLATIONS.containsKey(player.getUniqueId())) {
-					float vl = GRAVITY_VIOLATIONS.getOrDefault(player.getUniqueId(), 0f);
+					final float vl = GRAVITY_VIOLATIONS.getOrDefault(player.getUniqueId(), 0f);
 					GRAVITY_VIOLATIONS.put(player.getUniqueId(), Math.max(0, vl - 0.5f));
 				}
 			}

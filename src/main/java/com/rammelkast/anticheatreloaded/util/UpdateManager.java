@@ -101,11 +101,13 @@ public class UpdateManager {
 
 	public class VersionSplit implements Comparable<VersionSplit> {
 		private final int major, minor, build;
+		private boolean prerelease = false;
 
 		public VersionSplit(String version) throws Exception {
 			if (version.endsWith("-ALPHA")) {
 				version = version.substring(0, version.length() - 6);
 			} else if (version.endsWith("-PRE")) {
+				this.prerelease = true;
 				version = version.substring(0, version.length() - 4);
 			}
 
@@ -132,11 +134,15 @@ public class UpdateManager {
 		}
 
 		@Override
-		public int compareTo(VersionSplit other) {
+		public int compareTo(final VersionSplit other) {
 			if (other.major == this.major) {
 				if (other.minor == this.minor) {
 					if (other.build == this.build) {
-						return 0;
+						if (!this.prerelease) {
+							return 0;
+						} else {
+							return -1;
+						}
 					}
 					if (other.build > this.build) {
 						return -1;

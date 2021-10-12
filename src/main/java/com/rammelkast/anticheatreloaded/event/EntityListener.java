@@ -38,6 +38,7 @@ import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.check.combat.CriticalsCheck;
 import com.rammelkast.anticheatreloaded.check.combat.KillAuraCheck;
+import com.rammelkast.anticheatreloaded.check.movement.AimbotCheck;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 public class EntityListener extends EventListener {
@@ -107,6 +108,12 @@ public class EntityListener extends EventListener {
             	if (getCheckManager().willCheck((Player)e.getDamager(), CheckType.CRITICALS)) {
                 	CriticalsCheck.doDamageEvent(e, (Player)e.getDamager());	 
             	}
+            	if (getCheckManager().willCheckQuick((Player)e.getDamager(), CheckType.AIMBOT)) {
+    				final CheckResult result = AimbotCheck.runCheck((Player)e.getDamager(), e);
+    				if (result.failed()) {
+    					log(result.getMessage(), (Player)e.getDamager(), CheckType.AIMBOT, result.getSubCheck());
+    				}
+    			}
             }
             if (event.getEntity() instanceof Player) {
                 Player player = (Player) event.getEntity();

@@ -18,54 +18,49 @@
  */
 package com.rammelkast.anticheatreloaded.check.movement;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.Backend;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
+import com.rammelkast.anticheatreloaded.util.MovementManager;
+import com.rammelkast.anticheatreloaded.util.User;
+import com.rammelkast.anticheatreloaded.util.Utilities;
 
-/**
- * TODO redo this all - useless check
+/*
+ * In development - expect issues
  */
 public final class AimbotCheck {
 
-	public static final Map<UUID, Float> LAST_DELTA_YAW = new HashMap<UUID, Float>();
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 	
-	public static CheckResult runCheck(final Player player, final PlayerMoveEvent event) {
+	public static CheckResult runCheck(final Player player, final EntityDamageByEntityEvent event) {
 		final Backend backend = AntiCheatReloaded.getManager().getBackend();
-		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		if (backend.isMovingExempt(player)) {
 			return PASS;
 		}
 		
-		final UUID uuid = player.getUniqueId();
-		final float dYaw = Math.abs(event.getTo().getYaw() - event.getFrom().getYaw());
-		final float dPitch = Math.abs(event.getTo().getPitch() - event.getFrom().getPitch());
-		// Not interesting
-		if (dYaw < 0.05 && dPitch < 0.05) {
-			return PASS;
-		}
-		
-		final float lastDeltaYaw = LAST_DELTA_YAW.getOrDefault(uuid, -1F);
-		if (lastDeltaYaw == -1F) {
-			LAST_DELTA_YAW.put(uuid, dYaw);
-			return PASS;
-		}
-		LAST_DELTA_YAW.put(uuid, dYaw);
-		
-		final float absoluteYawDifference = Math.abs(dYaw - lastDeltaYaw);
-		final int minYaw = checksConfig.getInteger(CheckType.AIMBOT, "minYaw");
-		final int maxYaw = checksConfig.getInteger(CheckType.AIMBOT, "maxYaw");
-		if (absoluteYawDifference < 1E-8 && minYaw > 30 && dYaw < maxYaw) {
-			return new CheckResult(CheckResult.Result.FAILED, "repeated yaw difference (dYaw=" + dYaw + ")");
+		final User user = AntiCheatReloaded.getManager().getUserManager()
+				.getUser(player.getUniqueId());
+		final MovementManager movementManager = user.getMovementManager();
+		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
+		final float deltaPitch = movementManager.deltaPitch;
+		final float deltaYaw = movementManager.deltaYaw;
+		final float pitchAcceleration = Math.abs(deltaPitch - movementManager.lastDeltaPitch);
+		final float yawAcceleration = Math.abs(deltaYaw - movementManager.lastDeltaYaw);
+
+		if (deltaYaw > 3.0F && deltaPitch <= 10.0F && pitchAcceleration > 2.0F && yawAcceleration > 2.0F
+				&& deltaPitch < deltaYaw) {
+			final double gcd = Utilities.computeGcd(deltaPitch, movementManager.lastDeltaPitch);
+			final double mod = player.getLocation().getPitch() % gcd;
+			final double maxGcd = checksConfig.getDouble(CheckType.AIMBOT, "maxGcd");
+			final double maxMod = checksConfig.getDouble(CheckType.AIMBOT, "maxMod");
+			if (gcd < maxGcd || mod < maxMod) {
+				return new CheckResult(CheckResult.Result.FAILED, "failed computational check (gcd=" + gcd + ", mod=" + mod + ")");
+			}
 		}
 		return PASS;
 	}

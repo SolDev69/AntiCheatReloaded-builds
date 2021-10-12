@@ -63,7 +63,6 @@ import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.check.combat.VelocityCheck;
-import com.rammelkast.anticheatreloaded.check.movement.AimbotCheck;
 import com.rammelkast.anticheatreloaded.check.movement.BoatFlyCheck;
 import com.rammelkast.anticheatreloaded.check.movement.ElytraCheck;
 import com.rammelkast.anticheatreloaded.check.movement.FastLadderCheck;
@@ -516,12 +515,6 @@ public final class PlayerListener extends EventListener {
 						}
 						log(result.getMessage(), player, CheckType.STRAFE, result.getSubCheck());
 					}
-				}
-			}
-			if (getCheckManager().willCheckQuick(player, CheckType.AIMBOT)) {
-				final CheckResult result = AimbotCheck.runCheck(player, event);
-				if (result.failed()) {
-					log(result.getMessage(), player, CheckType.AIMBOT, result.getSubCheck());
 				}
 			}
 			if (getCheckManager().willCheckQuick(player, CheckType.VELOCITY)) {
