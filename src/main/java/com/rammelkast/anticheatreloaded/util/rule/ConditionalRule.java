@@ -25,6 +25,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
@@ -116,7 +117,7 @@ public class ConditionalRule extends Rule {
 			ENGINE = FACTORY.getEngineByName("js");
 		} else {
 			ENGINE = null;
-			AntiCheatReloaded.getManager().getLoggingManager().logToConsole(AntiCheatReloaded.PREFIX + ChatColor.RED
+			Bukkit.getConsoleSender().sendMessage(AntiCheatReloaded.PREFIX + ChatColor.RED
 					+ "Java 15+ currently does not support ACR's rule engine. Rules.yml is disabled.");
 		}
 	}
