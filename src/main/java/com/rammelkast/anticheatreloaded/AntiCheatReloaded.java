@@ -48,35 +48,45 @@ import com.rammelkast.anticheatreloaded.util.UpdateManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
+import lombok.Getter;
+
 public final class AntiCheatReloaded extends JavaPlugin {
 
-	public static final String PREFIX = ChatColor.GOLD + "" + ChatColor.BOLD + "ACR " + ChatColor.DARK_GRAY + "> " + ChatColor.GRAY;
+	public static final String PREFIX = ChatColor.GOLD + "" + ChatColor.BOLD + "ACR " + ChatColor.DARK_GRAY + "> "
+			+ ChatColor.GRAY;
 	public static final List<UUID> MUTE_ENABLED_MODS = new ArrayList<UUID>();
-	
+
+	@Getter
 	private static AntiCheatReloaded plugin;
+	@Getter
 	private static AntiCheatManager manager;
-	private static ExecutorService executorService;
+	@Getter
+	private static ExecutorService executor;
+	@Getter
+	private static ProtocolManager protocolManager;
+	@Getter
+	private static UpdateManager updateManager;
+	@Getter
+	private static boolean floodgateEnabled;
 	private static List<Listener> eventList = new ArrayList<Listener>();
 	private static Configuration config;
 	private static boolean verbose;
-	private static ProtocolManager protocolManager;
-	private static UpdateManager updateManager;
-	
+
 	private double tps = -1;
 	private String symbiosisMetric = "None";
 
 	@Override
 	public void onLoad() {
 		plugin = this;
-		
+
 		// Create executor service
 		// Determine thread count based on available CPU cores/threads, max of 4
 		final int threads = Math.max(Math.min(Runtime.getRuntime().availableProcessors() / 4, 4), 1);
-		executorService = Executors.newFixedThreadPool(threads);
+		executor = Executors.newFixedThreadPool(threads);
 		{
 			Bukkit.getConsoleSender().sendMessage(PREFIX + ChatColor.GRAY + "Pool size is " + threads + " threads");
 		}
-		
+
 		// Check for ProtocolLib
 		if (Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
 			Bukkit.getConsoleSender().sendMessage(PREFIX + ChatColor.RED
@@ -85,11 +95,11 @@ public final class AntiCheatReloaded extends JavaPlugin {
 			return;
 		}
 	}
-	
+
 	@Override
 	public void onEnable() {
 		manager = new AntiCheatManager(this, getLogger());
-		
+
 		eventList.add(new PlayerListener());
 		eventList.add(new BlockListener());
 		eventList.add(new EntityListener());
@@ -105,7 +115,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 		restoreLevels();
 		// Setup ProtocolLib hooks
 		setupProtocol();
-		
+
 		Bukkit.getConsoleSender()
 				.sendMessage(PREFIX + ChatColor.GRAY + "Running Minecraft version " + VersionUtil.getVersion() + " "
 						+ (VersionUtil.isSupported() ? (ChatColor.GREEN + "(supported)")
@@ -113,35 +123,42 @@ public final class AntiCheatReloaded extends JavaPlugin {
 
 		// Load protocol manager
 		PacketListener.load(protocolManager);
-		
+
+		// Check for Floodgate
+		if (Bukkit.getPluginManager().getPlugin("Floodgate") != null) {
+			floodgateEnabled = true;
+			Bukkit.getConsoleSender().sendMessage(PREFIX + ChatColor.WHITE + "Floodgate support enabled");
+		}
+
+		// Create update manager
 		updateManager = new UpdateManager();
-		
+
 		// Launch TPS check
 		new BukkitRunnable() {
-            long second;
-            long currentSecond;
-            int ticks;
+			long second;
+			long currentSecond;
+			int ticks;
 
-            public void run() {
-            	second = (System.currentTimeMillis() / 1000L);
-                if (currentSecond == second) {
-                    ticks += 1;
-                } else {
-                	currentSecond = second;
-                    tps = (tps == 0.0D ? ticks : (tps + ticks) / 2.0D);
-                    ticks = 1;
-                }
-                
-                // Check for updates every 12 hours
-                if (ticks % 864000 == 0) {
-                	updateManager.update();
-                }
-            }
-        }.runTaskTimer(this, 40L, 1L);
-        
+			public void run() {
+				second = (System.currentTimeMillis() / 1000L);
+				if (currentSecond == second) {
+					ticks += 1;
+				} else {
+					currentSecond = second;
+					tps = (tps == 0.0D ? ticks : (tps + ticks) / 2.0D);
+					ticks = 1;
+				}
+
+				// Check for updates every 12 hours
+				if (ticks % 864000 == 0) {
+					updateManager.update();
+				}
+			}
+		}.runTaskTimer(this, 40L, 1L);
+
 		// End tests
 		verboseLog("Finished loading.");
-		
+
 		// Metrics
 		getServer().getScheduler().runTaskLater(this, new Runnable() {
 			@Override
@@ -187,10 +204,10 @@ public final class AntiCheatReloaded extends JavaPlugin {
 	public void onDisable() {
 		// Cancel all running tasks
 		getServer().getScheduler().cancelTasks(this);
-		
+
 		// Shut down executor service
-		executorService.shutdown();
-		
+		executor.shutdown();
+
 		// Save user levels
 		verboseLog("Saving user levels...");
 		if (config != null) {
@@ -244,14 +261,6 @@ public final class AntiCheatReloaded extends JavaPlugin {
 		}
 	}
 
-	public static AntiCheatReloaded getPlugin() {
-		return plugin;
-	}
-
-	public static AntiCheatManager getManager() {
-		return manager;
-	}
-	
 	public static String getVersion() {
 		return manager.getPlugin().getDescription().getVersion();
 	}
@@ -263,9 +272,9 @@ public final class AntiCheatReloaded extends JavaPlugin {
 		config = null;
 		protocolManager = null;
 		updateManager = null;
-		executorService = null;
+		executor = null;
 	}
-	
+
 	public static void debugLog(final String string) {
 		Bukkit.getScheduler().runTask(getPlugin(), new Runnable() {
 			public void run() {
@@ -285,11 +294,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 	public void setVerbose(boolean b) {
 		verbose = b;
 	}
-
-	public static ProtocolManager getProtocolManager() {
-		return protocolManager;
-	}
-
+	
 	/**
 	 * Amount of players kicked since start
 	 */
@@ -300,9 +305,9 @@ public final class AntiCheatReloaded extends JavaPlugin {
 	}
 
 	/**
-	 * Creates metric that checks for anti-cheat symbiosis
-	 * I use this to see if AntiCheatReloaded is actively being used
-	 * together with other anti-cheats, so I can account for that.
+	 * Creates metric that checks for anti-cheat symbiosis I use this to see if
+	 * AntiCheatReloaded is actively being used together with other anti-cheats, so
+	 * I can account for that.
 	 */
 	protected void checkForSymbiosis() {
 		if (Bukkit.getPluginManager().getPlugin("NoCheatPlus") != null) {
@@ -352,7 +357,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 	public static void sendToMainThread(final Runnable runnable) {
 		Bukkit.getScheduler().runTask(AntiCheatReloaded.getPlugin(), runnable);
 	}
-	
+
 	public void sendToStaff(final String message) {
 		Bukkit.getOnlinePlayers().forEach(player -> {
 			if (player.hasPermission("anticheat.system.alert")) {
@@ -362,17 +367,9 @@ public final class AntiCheatReloaded extends JavaPlugin {
 			}
 		});
 	}
-	
-	public static UpdateManager getUpdateManager() {
-		return updateManager;
-	}
-	
-	public static ExecutorService getExecutor() {
-		return executorService;
-	}
-	
+
 	public double getTPS() {
 		return Math.min(Math.max(this.tps, 0.0D), 20.0D);
 	}
-	
+
 }

@@ -28,7 +28,9 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.geysermc.floodgate.api.FloodgateApi;
 
+import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.Configuration;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
@@ -136,6 +138,11 @@ public final class CheckManager {
      * @param type   The check
      */
     public boolean isExempt(final Player player, final CheckType type) {
+    	if (AntiCheatReloaded.isFloodgateEnabled()) {
+    		if (FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId())) {
+    			return true;
+    		}
+    	}
         return exemptList.containsKey(player.getUniqueId()) ? exemptList.get(player.getUniqueId()).contains(type) : false;
     }
 
