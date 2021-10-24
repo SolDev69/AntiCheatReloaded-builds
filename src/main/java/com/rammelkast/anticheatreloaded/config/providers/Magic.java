@@ -51,18 +51,6 @@ public interface Magic {
      */
     public int JOIN_TIME();
     /**
-     * Time to exempt a player from moving because of taking damage; Type=SYSTEM, Leniency=INCREASE.
-     */
-    public int DAMAGE_TIME();
-    /**
-     * Time to exempt a player from moving because of taking damage with knockback effects; Type=SYSTEM, Leniency=INCREASE.
-     */
-    public int KNOCKBACK_DAMAGE_TIME();
-    /**
-     * Time to exempt a player from moving because of taking damage from an explosion; Type=SYSTEM, Leniency=INCREASE.
-     */
-    public int EXPLOSION_DAMAGE_TIME();
-    /**
      * Time a player is considered to have a change in velocity; Type=SYSTEM, Leniency=INCREASE.
      */
     public int VELOCITY_TIME();

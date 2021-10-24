@@ -19,10 +19,7 @@
 
 package com.rammelkast.anticheatreloaded.event;
 
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -39,7 +36,6 @@ import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.check.combat.CriticalsCheck;
 import com.rammelkast.anticheatreloaded.check.combat.KillAuraCheck;
 import com.rammelkast.anticheatreloaded.check.movement.AimbotCheck;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 public class EntityListener extends EventListener {
 
@@ -114,21 +110,6 @@ public class EntityListener extends EventListener {
     					log(result.getMessage(), (Player)e.getDamager(), CheckType.AIMBOT, result.getSubCheck());
     				}
     			}
-            }
-            if (event.getEntity() instanceof Player) {
-                Player player = (Player) event.getEntity();
-                if (e.getDamager() instanceof Player) {
-                    Player p = (Player) e.getDamager();
-                    getBackend().logDamage(p, 1);
-                    int value = VersionUtil.getItemInHand(player).containsEnchantment(Enchantment.KNOCKBACK) ? 2 : 1;
-                    getBackend().logDamage(player, value);
-                } else {
-                    if (e.getDamager() instanceof TNTPrimed || e.getDamager() instanceof Creeper) {
-                        getBackend().logDamage(player, 3);
-                    } else {
-                        getBackend().logDamage(player, 1);
-                    }
-                }
             }
 			if (e.getDamager() instanceof Player && event.getCause() == DamageCause.ENTITY_ATTACK) {
 				Player player = (Player) e.getDamager();

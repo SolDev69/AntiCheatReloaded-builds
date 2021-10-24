@@ -525,27 +525,6 @@ public class Backend {
 		return isDoing(player, placedBlock, 0.1);
 	}
 
-	public void logDamage(final Player player, final int type) {
-		long time;
-		switch (type) {
-		case 1:
-			time = magic.DAMAGE_TIME();
-			break;
-		case 2:
-			time = magic.KNOCKBACK_DAMAGE_TIME();
-			break;
-		case 3:
-			time = magic.EXPLOSION_DAMAGE_TIME();
-			break;
-		default:
-			time = magic.DAMAGE_TIME();
-			break;
-
-		}
-		FlightCheck.MOVING_EXEMPT.put(player.getUniqueId(), System.currentTimeMillis() + time);
-		// Only map in which termination time is calculated beforehand.
-	}
-
 	public void logEnterExit(final Player player) {
 		FlightCheck.MOVING_EXEMPT.put(player.getUniqueId(), System.currentTimeMillis() + magic.ENTERED_EXITED_TIME());
 	}

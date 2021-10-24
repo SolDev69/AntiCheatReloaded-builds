@@ -50,17 +50,17 @@ public final class AimbotCheck {
 		final float deltaPitch = movementManager.deltaPitch;
 		final float deltaYaw = movementManager.deltaYaw;
 		final float pitchAcceleration = Math.abs(deltaPitch - movementManager.lastDeltaPitch);
-		final float yawAcceleration = Math.abs(deltaYaw - movementManager.lastDeltaYaw);
 
-		if (deltaYaw > 3.0F && deltaPitch <= 10.0F && pitchAcceleration > 2.0F && yawAcceleration > 2.0F
-				&& deltaPitch < deltaYaw) {
-			final double gcd = Utilities.computeGcd(deltaPitch, movementManager.lastDeltaPitch);
-			final double mod = player.getLocation().getPitch() % gcd;
-			final double maxGcd = checksConfig.getDouble(CheckType.AIMBOT, "maxGcd");
-			final double maxMod = checksConfig.getDouble(CheckType.AIMBOT, "maxMod");
-			if (gcd < maxGcd || mod < maxMod) {
-				return new CheckResult(CheckResult.Result.FAILED, "failed computational check (gcd=" + gcd + ", mod=" + mod + ")");
-			}
+		final double gcd = Utilities.computeGcd(deltaPitch, movementManager.lastDeltaPitch);
+		final double mod = Math.abs(player.getLocation().getPitch() % gcd);
+		final double minAcceleration = checksConfig.getDouble(CheckType.AIMBOT, "minAcceleration");
+		final double maxMod = checksConfig.getDouble(CheckType.AIMBOT, "maxMod");
+		if (mod < maxMod && pitchAcceleration > minAcceleration
+				&& (deltaPitch == 0.0f || (deltaPitch > 45.0f && deltaYaw > 45.0f))) {
+			return new CheckResult(CheckResult.Result.FAILED,
+					"failed computational check (gcd=" + Utilities.roundDouble(gcd, 4) + ", mod="
+							+ Utilities.roundDouble(mod, 4) + ", accel=" + Utilities.roundDouble(pitchAcceleration, 4)
+							+ ")");
 		}
 		return PASS;
 	}

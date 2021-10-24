@@ -193,10 +193,10 @@ killaura:
 aimbot:
   # Should this check be enabled?
   enabled: true
-  # Maximum gcd value for check to consider aim illegal
-  maxGcd: 0.002
+  # Maximum pitch acceleration for check to consider aim illegal
+  minAcceleration: 0.5
   # Maximum mod value for check to consider aim illegal
-  maxMod: 0.003
+  maxMod: 0.0001
 # Criticals check settings
 # Checks if the player tries to do a crit without needed conditions
 criticals:

@@ -8,18 +8,6 @@ TELEPORT_TIME: 1500
 # If your server is slow when a player joins, increasing this value is important
 # Shouldn't be lower than 1500 or higher than 5000
 JOIN_TIME: 2000
-# Time to exempt a player from moving because of taking damage
-# Can be decreased very slightly to increase detection
-# Increase in case of false positives after taking damage
-DAMAGE_TIME: 500
-# Time to exempt a player from moving because of taking damage with knockback effects
-# Can be decreased very slightly to increase detection
-# Increase in case of false positives after knockback
-KNOCKBACK_DAMAGE_TIME: 2000
-# Time to exempt a player from moving because of taking damage from an explosion
-# Can be decreased very slightly to increase detection
-# Increasing in case of false positives after explosions
-EXPLOSION_DAMAGE_TIME: 2500
 # Time a player is considered to have a change in velocity
 VELOCITY_TIME: 1500
 # Minimum travel distance for move to be considered a teleport and subsequently be ignored

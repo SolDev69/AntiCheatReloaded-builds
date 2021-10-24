@@ -184,7 +184,7 @@ public final class SpeedCheck {
 			}
 			
 			// Adjust for velocity
-			predict += velocityTracker.getHorizontal() * 0.8D;
+			limit += velocityTracker.getHorizontal();
 
 			if (distanceXZ - predict > limit) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirSpeed",
@@ -233,7 +233,7 @@ public final class SpeedCheck {
 			}
 			
 			// Add velocity
-			limit += velocityTracker.getHorizontal() * 0.8D;
+			limit += velocityTracker.getHorizontal();
 
 			if (initialAcceleration > limit) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirAcceleration",
@@ -339,6 +339,9 @@ public final class SpeedCheck {
 			if (movementManager.sneakingTicks > 1) {
 				limit *= 0.68D;
 			}
+			
+			// Velocity adjustment
+			limit += velocityTracker.getHorizontal();
 
 			if (distanceXZ - limit > 0) {
 				return new CheckResult(CheckResult.Result.FAILED, "GroundSpeed",
@@ -357,8 +360,10 @@ public final class SpeedCheck {
 			return PASS;
 		}
 
-		final MovementManager movementManager = AntiCheatReloaded.getManager().getUserManager()
-				.getUser(player.getUniqueId()).getMovementManager();
+		final User user = AntiCheatReloaded.getManager().getUserManager()
+				.getUser(player.getUniqueId());
+		final MovementManager movementManager = user.getMovementManager();
+		final VelocityTracker velocityTracker = user.getVelocityTracker();
 		// Riptiding exemption
 		if (movementManager.riptideTicks > 0) {
 			return PASS;
@@ -378,6 +383,9 @@ public final class SpeedCheck {
 		if (movementManager.nearLiquidTicks > 6) {
 			maxMotionY *= 1.0525D;
 		}
+		
+		// Adjust for velocity
+		maxMotionY += velocityTracker.getVertical();
 
 		if (movementManager.motionY > maxMotionY && movementManager.slimeInfluenceTicks <= 0) {
 			return new CheckResult(CheckResult.Result.FAILED, "VerticalSpeed",
