@@ -36,6 +36,7 @@ import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 import com.rammelkast.anticheatreloaded.util.VelocityTracker;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.XMaterial;
 
 /**
  * @author Rammelkast TODO soulsand speed TODO buffer system
@@ -382,6 +383,11 @@ public final class SpeedCheck {
 		// Fix false positive with soulsand boost
 		if (movementManager.nearLiquidTicks > 6) {
 			maxMotionY *= 1.0525D;
+		}
+		
+		// Adjust for powdered snow
+		if (distance.getFrom().getBlock().getType() == XMaterial.POWDER_SNOW.parseMaterial()) {
+			maxMotionY += 0.17D;
 		}
 		
 		// Adjust for velocity

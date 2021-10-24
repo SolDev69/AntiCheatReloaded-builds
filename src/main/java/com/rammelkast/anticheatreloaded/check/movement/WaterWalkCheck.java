@@ -43,11 +43,11 @@ public final class WaterWalkCheck {
 		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(uuid);
 		final MovementManager movementManager = user.getMovementManager();
 
-		if (movementManager.distanceXZ <= 0 || player.getVehicle() != null || Utilities.isOnLilyPad(player)
-				|| movementManager.riptideTicks > 0 || VersionUtil.isSwimming(player) || VersionUtil.isFlying(player)
-				|| player.getLocation().getBlock().getType().name().endsWith("CARPET"))
+		if (movementManager.distanceXZ <= 0 || player.getVehicle() != null || Utilities.isOnLilyPad(player) || Utilities.isOnCarpet(player)
+				|| movementManager.riptideTicks > 0 || VersionUtil.isSwimming(player) || VersionUtil.isFlying(player)) {
 			return PASS;
-		
+		}
+
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		final Block blockBeneath = player.getLocation().clone().subtract(0, 0.1, 0).getBlock();
 		if (checksConfig.isSubcheckEnabled(CheckType.WATER_WALK, "walk") && blockBeneath.isLiquid()
@@ -55,30 +55,30 @@ public final class WaterWalkCheck {
 				&& ((movementManager.motionY == 0 && movementManager.lastMotionY == 0)
 						|| movementManager.motionY == Utilities.JUMP_MOTION_Y)
 				&& movementManager.distanceXZ > checksConfig.getDouble(CheckType.WATER_WALK, "walk", "minimumDistXZ")
-				&& !movementManager.topSolid && !Utilities.couldBeOnBoat(player, 3, false))
+				&& !movementManager.topSolid && !Utilities.couldBeOnBoat(player, 3, false)) {
 			return new CheckResult(Result.FAILED, "Walk",
 					"tried to walk on water (xz=" + Utilities.roundDouble(movementManager.distanceXZ, 5) + ")");
+		}
 
 		if (checksConfig.isSubcheckEnabled(CheckType.WATER_WALK, "hop") && blockBeneath.isLiquid()
 				&& Utilities.isSurroundedByWater(player) && movementManager.onGround
 				&& Math.abs(movementManager.motionY) < checksConfig.getDouble(CheckType.WATER_WALK, "hop", "maxMotionY")
-				&& !Utilities.couldBeOnBoat(player, 0.3, false))
+				&& !Utilities.couldBeOnBoat(player, 0.3, false)) {
 			return new CheckResult(Result.FAILED, "Hop",
 					"tried to hop on water (mY=" + Utilities.roundDouble(movementManager.motionY, 5) + ")");
+		}
 
-		double minAbsMotionY = 0.12D;
-		if (player.hasPotionEffect(PotionEffectType.SPEED))
-			minAbsMotionY += VersionUtil.getPotionLevel(player, PotionEffectType.SPEED) * 0.05D;
+		final double minAbsMotionY = 0.12D + (VersionUtil.getPotionLevel(player, PotionEffectType.SPEED) * 0.05D);
 		if (checksConfig.isSubcheckEnabled(CheckType.WATER_WALK, "lunge") && blockBeneath.isLiquid()
 				&& Utilities.isSurroundedByWater(player)
 				&& Math.abs(movementManager.lastMotionY - movementManager.motionY) > minAbsMotionY
 				&& movementManager.distanceXZ > checksConfig.getDouble(CheckType.WATER_WALK, "lunge", "minimumDistXZ")
 				&& movementManager.lastMotionY > -0.25
-				&& !Utilities.couldBeOnBoat(player, 0.3, false))
+				&& !Utilities.couldBeOnBoat(player, 0.3, false)) {
 			return new CheckResult(Result.FAILED, "Lunge", "tried to lunge in water (xz="
 					+ Utilities.roundDouble(movementManager.distanceXZ, 5) + ", absMotionY="
 					+ Utilities.roundDouble(Math.abs(movementManager.lastMotionY - movementManager.motionY), 5) + ")");
-
+		}
 		return PASS;
 	}
 

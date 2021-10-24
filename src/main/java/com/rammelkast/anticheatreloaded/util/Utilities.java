@@ -464,13 +464,28 @@ public final class Utilities {
 	 * @param player player to check
 	 * @return true if on lily pad
 	 */
-	public static boolean isOnLilyPad(Player player) {
-		Block block = player.getLocation().getBlock();
+	public static boolean isOnLilyPad(final Player player) {
+		final Block block = player.getLocation().getBlock();
 		return block.getType() == XMaterial.LILY_PAD.parseMaterial()
 				|| block.getRelative(BlockFace.NORTH).getType() == XMaterial.LILY_PAD.parseMaterial()
 				|| block.getRelative(BlockFace.SOUTH).getType() == XMaterial.LILY_PAD.parseMaterial()
 				|| block.getRelative(BlockFace.EAST).getType() == XMaterial.LILY_PAD.parseMaterial()
 				|| block.getRelative(BlockFace.WEST).getType() == XMaterial.LILY_PAD.parseMaterial();
+	}
+	
+	/**
+	 * Determine whether a player is standing on a carpet
+	 *
+	 * @param player player to check
+	 * @return true if on carpet
+	 */
+	public static boolean isOnCarpet(final Player player) {
+		final Block block = player.getLocation().getBlock();
+		return block.getType().name().endsWith("CARPET")
+				|| block.getRelative(BlockFace.NORTH).getType().name().endsWith("CARPET")
+				|| block.getRelative(BlockFace.SOUTH).getType().name().endsWith("CARPET")
+				|| block.getRelative(BlockFace.EAST).getType().name().endsWith("CARPET")
+				|| block.getRelative(BlockFace.WEST).getType().name().endsWith("CARPET");
 	}
 
 	/**
@@ -479,7 +494,7 @@ public final class Utilities {
 	 * @param player player to check
 	 * @return true if submersed
 	 */
-	public static boolean isSubmersed(Player player) {
+	public static boolean isSubmersed(final Player player) {
 		return player.getLocation().getBlock().isLiquid()
 				&& player.getLocation().getBlock().getRelative(BlockFace.UP).isLiquid();
 	}
@@ -638,7 +653,7 @@ public final class Utilities {
 	 * @param block block to check
 	 * @return true if climbable
 	 */
-	public static boolean isClimbableBlock(Block block) {
+	public static boolean isClimbableBlock(final Block block) {
 		return CLIMBABLE.contains(block.getType());
 	}
 
@@ -648,7 +663,7 @@ public final class Utilities {
 	 * @param player to check
 	 * @return true if on vine
 	 */
-	public static boolean isOnVine(Player player) {
+	public static boolean isOnVine(final Player player) {
 		return player.getLocation().getBlock().getType() == XMaterial.VINE.parseMaterial();
 	}
 
@@ -1034,6 +1049,7 @@ public final class Utilities {
 			CLIMBABLE.add(XMaterial.CAVE_VINES.parseMaterial());
 			CLIMBABLE.add(XMaterial.CAVE_VINES_PLANT.parseMaterial());
 			CLIMBABLE.add(XMaterial.GLOW_BERRIES.parseMaterial());
+			CLIMBABLE.add(XMaterial.POWDER_SNOW.parseMaterial());
 		}
 		// End 1.17 objects
 		// End climbable
