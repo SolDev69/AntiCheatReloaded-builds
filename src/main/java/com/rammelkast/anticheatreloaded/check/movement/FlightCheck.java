@@ -172,7 +172,8 @@ public final class FlightCheck {
 					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
 		}
 
-		if (movementManager.airTicks >= minAirTicks && movementManager.motionY > 0 && !velocityTracker.isVelocitized()
+		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
+				&& movementManager.motionY > 0 && !velocityTracker.isVelocitized()
 				&& movementManager.slimeInfluenceTicks <= 0 && movementManager.elytraEffectTicks <= 25
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))) {
