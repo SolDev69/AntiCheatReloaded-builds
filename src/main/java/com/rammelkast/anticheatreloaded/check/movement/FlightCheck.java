@@ -173,12 +173,30 @@ public final class FlightCheck {
 		}
 
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
-				&& movementManager.motionY > 0 && !velocityTracker.isVelocitized()
-				&& movementManager.slimeInfluenceTicks <= 0 && movementManager.elytraEffectTicks <= 25
+				&& !velocityTracker.isVelocitized() && movementManager.slimeInfluenceTicks <= 0
+				&& movementManager.elytraEffectTicks <= 25
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))) {
-			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
-					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+			// Config default base is 1200ms
+			// Ping clamped to max. 1000 to prevent spoofing for an advantage
+			int blockPlaceAccountingTime = (int) (checksConfig.getInteger(CheckType.FLIGHT, "airFlight",
+					"accountForBlockPlacement") + (0.25 * (user.getPing() > 1000 ? 1000 : user.getPing())));
+			// Config default account is 250ms
+			if (AntiCheatReloaded.getPlugin().getTPS() < 18.0) {
+				blockPlaceAccountingTime += checksConfig.getInteger(CheckType.FLIGHT, "airFlight",
+						"accountForTpsDrops");
+			}
+
+			final long lastPlacedBlock = AntiCheatReloaded.getManager().getBackend().placedBlock
+					.containsKey(player.getUniqueId())
+							? AntiCheatReloaded.getManager().getBackend().placedBlock.get(player.getUniqueId())
+							: (blockPlaceAccountingTime + 1);
+			final double maxMotionY = System.currentTimeMillis() - lastPlacedBlock > blockPlaceAccountingTime ? 0
+					: 0.42;
+			if (movementManager.motionY > maxMotionY) {
+				return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
+						"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+			}
 		}
 		// End AirClimb
 
