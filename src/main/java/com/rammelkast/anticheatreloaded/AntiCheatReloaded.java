@@ -165,7 +165,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 			public void run() {
 				checkForSymbiosis();
 				try {
-					Metrics metrics = new Metrics(AntiCheatReloaded.this, 202);
+					final Metrics metrics = new Metrics(AntiCheatReloaded.this, 202);
 					metrics.addCustomChart(new Metrics.SingleLineChart("cheaters_kicked", new Callable<Integer>() {
 						@Override
 						public Integer call() throws Exception {
@@ -191,6 +191,12 @@ public final class AntiCheatReloaded extends JavaPlugin {
 						@Override
 						public String call() throws Exception {
 							return symbiosisMetric;
+						}
+					}));
+					metrics.addCustomChart(new Metrics.SimplePie("floodgate_enabled", new Callable<String>() {
+						@Override
+						public String call() throws Exception {
+							return floodgateEnabled ? "Yes" : "No";
 						}
 					}));
 				} catch (Exception e) {

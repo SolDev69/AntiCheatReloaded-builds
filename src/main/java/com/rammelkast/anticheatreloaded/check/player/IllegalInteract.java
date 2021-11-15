@@ -86,6 +86,10 @@ public final class IllegalInteract {
 
 	private static CheckResult checkBlockPlace(final Player player, final BlockPlaceEvent event) {
 		final BlockFace face = event.getBlock().getFace(event.getBlockAgainst());
+		if (face == null) {
+			return PASS;
+		}
+		
 		final Vector vector = new Vector(face.getModX(), face.getModY(), face.getModZ());
 		if (event.getBlock().getType().isSolid()
 				&& player.getLocation().getDirection().angle(vector) > Math.toRadians(90)) {
