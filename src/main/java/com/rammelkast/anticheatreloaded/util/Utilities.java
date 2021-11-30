@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,9 +57,9 @@ public final class Utilities {
 	 * @param block the block to check (under)
 	 * @return true if they cannot stand there
 	 */
-	public static boolean cantStandAtSingle(Block block) {
-		Block otherBlock = block.getLocation().add(0, -0.5, 0).getBlock();
-		boolean center = otherBlock.getType() == Material.AIR;
+	public static boolean cantStandAtSingle(final Block block) {
+		final Block otherBlock = block.getLocation().add(0, -0.5, 0).getBlock();
+		final boolean center = otherBlock.getType() == Material.AIR;
 		return center;
 	}
 
@@ -68,7 +69,7 @@ public final class Utilities {
 	 * @param block the block to check
 	 * @return true if the player should be unable to stand here
 	 */
-	public static boolean cantStandAt(Block block) {
+	public static boolean cantStandAt(final Block block) {
 		return !canStand(block) && cantStandClose(block) && cantStandFar(block);
 	}
 
@@ -78,7 +79,7 @@ public final class Utilities {
 	 * @param location the location to check
 	 * @return true if the player should be unable to stand here
 	 */
-	public static boolean cantStandAtExp(Location location) {
+	public static boolean cantStandAtExp(final Location location) {
 		return cantStandAt(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
 				location.getBlockZ()).getBlock());
 	}
@@ -90,7 +91,7 @@ public final class Utilities {
 	 * @param block the block to check
 	 * @return true if a player cannot stand in the immediate vicinity
 	 */
-	public static boolean cantStandClose(Block block) {
+	public static boolean cantStandClose(final Block block) {
 		return !canStand(block.getRelative(BlockFace.NORTH)) && !canStand(block.getRelative(BlockFace.EAST))
 				&& !canStand(block.getRelative(BlockFace.SOUTH)) && !canStand(block.getRelative(BlockFace.WEST));
 	}
@@ -101,7 +102,7 @@ public final class Utilities {
 	 * @param block the block to check
 	 * @return true if a player cannot stand in areas further away from the block
 	 */
-	public static boolean cantStandFar(Block block) {
+	public static boolean cantStandFar(final Block block) {
 		return !canStand(block.getRelative(BlockFace.NORTH_WEST)) && !canStand(block.getRelative(BlockFace.NORTH_EAST))
 				&& !canStand(block.getRelative(BlockFace.SOUTH_WEST))
 				&& !canStand(block.getRelative(BlockFace.SOUTH_EAST));
@@ -113,22 +114,33 @@ public final class Utilities {
 	 * @param block the block to check
 	 * @return true if the player can stand here
 	 */
-	public static boolean canStand(Block block) {
+	public static boolean canStand(final Block block) {
 		return !(block.isLiquid() || block.getType() == Material.AIR);
 	}
 
-	public static boolean isNotNearSlime(Block block) {
+	public static boolean isNotNearSlime(final Block block) {
 		return !isSlime(block.getRelative(BlockFace.NORTH)) && !isSlime(block.getRelative(BlockFace.EAST))
 				&& !isSlime(block.getRelative(BlockFace.SOUTH)) && !isSlime(block.getRelative(BlockFace.WEST))
 				&& !isSlime(block.getRelative(BlockFace.DOWN));
 	}
 
-	public static boolean couldBeOnBoat(Player player) {
+	/**
+	 * Determine whether a block is a type of slime
+	 *
+	 * @param block block to check
+	 * @return true if block is a type of slime
+	 */
+	public static boolean isSlime(final Block block) {
+		final Material type = block.getType();
+		return type.equals(XMaterial.SLIME_BLOCK.parseMaterial());
+	}
+	
+	public static boolean couldBeOnBoat(final Player player) {
 		return couldBeOnBoat(player, 0.35, false);
 	}
 
-	public static boolean couldBeOnBoat(Player player, double range, boolean checkY) {
-		for (Entity entity : player.getNearbyEntities(range, range, range)) {
+	public static boolean couldBeOnBoat(final Player player, final double range, final boolean checkY) {
+		for (final Entity entity : player.getNearbyEntities(range, range, range)) {
 			if (entity instanceof Boat) {
 				if (((Boat) entity).getLocation().getY() < player.getLocation().getY() + 0.35) {
 					return true;
@@ -146,59 +158,23 @@ public final class Utilities {
 	 * @param location the location to check
 	 * @return true if the player could be standing on ice
 	 */
-	public static boolean couldBeOnIce(Location location) {
+	public static boolean couldBeOnIce(final Location location) {
 		return isNearIce(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
 				location.getBlockZ()))
 				|| isNearIce(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.26D,
 						location.getBlockZ()));
 	}
 
-	/**
-	 * Determine whether a block is a type of ice
-	 *
-	 * @param block block to check
-	 * @return true if block is a type of ice
-	 */
-	public static boolean isIce(Block block) {
-		Material type = block.getType();
-		return type.name().endsWith("ICE");
+	public static boolean isNearIce(final Location location) {
+		return isCollisionPoint(location, material -> material.name().endsWith("ICE"));
 	}
 
-	public static boolean isNearIce(Location location) {
-		return isIce(location.getBlock()) || isIce(location.getBlock().getRelative(BlockFace.NORTH))
-				|| isIce(location.getBlock().getRelative(BlockFace.SOUTH))
-				|| isIce(location.getBlock().getRelative(BlockFace.EAST))
-				|| isIce(location.getBlock().getRelative(BlockFace.WEST))
-				|| isIce(location.getBlock().getRelative(BlockFace.NORTH_EAST))
-				|| isIce(location.getBlock().getRelative(BlockFace.NORTH_WEST))
-				|| isIce(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
-				|| isIce(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
-	}
-
-	/**
-	 * Determine whether a block is a shulker box
-	 *
-	 * @param block block to check
-	 * @return true if block is a shulker box
-	 */
-	public static boolean isShulkerBox(Block block) {
-		Material type = block.getType();
-		return type.name().endsWith("SHULKER_BOX");
-	}
-
-	public static boolean isNearShulkerBox(Location location) {
+	public static boolean isNearShulkerBox(final Location location) {
 		// Shulkers are 1.12+
 		if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.COLOR_UPDATE)) {
 			return false;
 		}
-		return isShulkerBox(location.getBlock()) || isShulkerBox(location.getBlock().getRelative(BlockFace.NORTH))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.SOUTH))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.EAST))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.WEST))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.NORTH_EAST))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.NORTH_WEST))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
-				|| isShulkerBox(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
+		return isCollisionPoint(location, material -> material.name().endsWith("SHULKER_BOX"));
 	}
 
 	/**
@@ -207,14 +183,14 @@ public final class Utilities {
 	 * @param location the location to check
 	 * @return true if the player could be standing on a halfblock
 	 */
-	public static boolean couldBeOnHalfblock(Location location) {
+	public static boolean couldBeOnHalfblock(final Location location) {
 		return isNearHalfblock(
 				new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getBlockZ()))
 				|| isNearHalfblock(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
 						location.getBlockZ()));
 	}
 
-	public static boolean isNearHalfblock(Location location) {
+	public static boolean isNearHalfblock(final Location location) {
 		return isHalfblock(location.getBlock()) || isHalfblock(location.getBlock().getRelative(BlockFace.NORTH))
 				|| isHalfblock(location.getBlock().getRelative(BlockFace.SOUTH))
 				|| isHalfblock(location.getBlock().getRelative(BlockFace.EAST))
@@ -228,7 +204,7 @@ public final class Utilities {
 	public static boolean isHalfblock(final Block block) {
 		// getBoundingBox() is only available on 1.14+
 		if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.VILLAGE_UPDATE)) {
-			BoundingBox box = block.getBoundingBox();
+			final BoundingBox box = block.getBoundingBox();
 			final double height = box.getMaxY() - box.getMinY();
 			if (height > 0.42 && height <= 0.6 && block.getType().isSolid()) {
 				return true;
@@ -244,33 +220,15 @@ public final class Utilities {
 	 * @param location the location to check
 	 * @return true if the player could be standing on slime
 	 */
-	public static boolean couldBeOnSlime(Location location) {
+	public static boolean couldBeOnSlime(final Location location) {
 		return isNearSlime(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
 				location.getBlockZ()))
 				|| isNearSlime(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.51D,
 						location.getBlockZ()));
 	}
 
-	/**
-	 * Determine whether a block is a type of slime
-	 *
-	 * @param block block to check
-	 * @return true if block is a type of slime
-	 */
-	public static boolean isSlime(Block block) {
-		Material type = block.getType();
-		return type.equals(XMaterial.SLIME_BLOCK.parseMaterial());
-	}
-
-	public static boolean isNearSlime(Location location) {
-		return isSlime(location.getBlock()) || isSlime(location.getBlock().getRelative(BlockFace.NORTH))
-				|| isSlime(location.getBlock().getRelative(BlockFace.SOUTH))
-				|| isSlime(location.getBlock().getRelative(BlockFace.EAST))
-				|| isSlime(location.getBlock().getRelative(BlockFace.WEST))
-				|| isSlime(location.getBlock().getRelative(BlockFace.NORTH_EAST))
-				|| isSlime(location.getBlock().getRelative(BlockFace.NORTH_WEST))
-				|| isSlime(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
-				|| isSlime(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
+	public static boolean isNearSlime(final Location location) {
+		return isCollisionPoint(location, material -> material == XMaterial.SLIME_BLOCK.parseMaterial());
 	}
 	
 	/**
@@ -279,33 +237,15 @@ public final class Utilities {
 	 * @param location the location to check
 	 * @return true if the player could be standing on soil
 	 */
-	public static boolean couldBeOnSoil(Location location) {
+	public static boolean couldBeOnSoil(final Location location) {
 		return isNearSoil(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
 				location.getBlockZ()))
 				|| isNearSoil(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.51D,
 						location.getBlockZ()));
 	}
 
-	/**
-	 * Determine whether a block is a type of soil
-	 *
-	 * @param block block to check
-	 * @return true if block is a type of soil
-	 */
-	public static boolean isSoil(Block block) {
-		Material type = block.getType();
-		return type.equals(XMaterial.SOUL_SOIL.parseMaterial()) || type.equals(XMaterial.SOUL_SAND.parseMaterial());
-	}
-
-	public static boolean isNearSoil(Location location) {
-		return isSoil(location.getBlock()) || isSoil(location.getBlock().getRelative(BlockFace.NORTH))
-				|| isSoil(location.getBlock().getRelative(BlockFace.SOUTH))
-				|| isSoil(location.getBlock().getRelative(BlockFace.EAST))
-				|| isSoil(location.getBlock().getRelative(BlockFace.WEST))
-				|| isSoil(location.getBlock().getRelative(BlockFace.NORTH_EAST))
-				|| isSoil(location.getBlock().getRelative(BlockFace.NORTH_WEST))
-				|| isSoil(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
-				|| isSoil(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
+	public static boolean isNearSoil(final Location location) {
+		return isCollisionPoint(location, material -> material == XMaterial.SOUL_SOIL.parseMaterial() || material == XMaterial.SOUL_SAND.parseMaterial());
 	}
 
 	/**
@@ -407,26 +347,8 @@ public final class Utilities {
 		return type.name().endsWith("SLAB");
 	}
 
-	/**
-	 * Determine whether a block is a bed
-	 *
-	 * @param block block to bed
-	 * @return true if bed
-	 */
-	public static boolean isBed(final Block block) {
-		final Material type = block.getType();
-		return type.name().endsWith("BED");
-	}
-
-	public static boolean isNearBed(Location location) {
-		return isBed(location.getBlock()) || isBed(location.getBlock().getRelative(BlockFace.NORTH))
-				|| isBed(location.getBlock().getRelative(BlockFace.SOUTH))
-				|| isBed(location.getBlock().getRelative(BlockFace.EAST))
-				|| isBed(location.getBlock().getRelative(BlockFace.WEST))
-				|| isBed(location.getBlock().getRelative(BlockFace.NORTH_EAST))
-				|| isBed(location.getBlock().getRelative(BlockFace.NORTH_WEST))
-				|| isBed(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
-				|| isBed(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
+	public static boolean isNearBed(final Location location) {
+		return isCollisionPoint(location, material -> material.name().endsWith("BED"));
 	}
 
 	/**
@@ -567,7 +489,7 @@ public final class Utilities {
 	 * @return true if surrounded by liquid blocks
 	 */
 	public static boolean isSurroundedByWater(Player player) {
-		Location location = player.getLocation().clone().subtract(0, 0.1, 0);
+		final Location location = player.getLocation().clone().subtract(0, 0.1, 0);
 		return location.getBlock().isLiquid() && location.getBlock().getRelative(BlockFace.NORTH).isLiquid()
 				&& location.getBlock().getRelative(BlockFace.SOUTH).isLiquid()
 				&& location.getBlock().getRelative(BlockFace.EAST).isLiquid()
@@ -584,24 +506,8 @@ public final class Utilities {
 	 * @param player player to check
 	 * @return true if near a web
 	 */
-	public static boolean isNearWeb(Player player) {
-		return isWeb(player.getLocation().getBlock())
-				|| isWeb(player.getLocation().getBlock().getRelative(BlockFace.DOWN))
-				|| isWeb(player.getLocation().getBlock().getRelative(BlockFace.UP))
-				|| isWeb(player.getLocation().getBlock().getRelative(BlockFace.NORTH))
-				|| isWeb(player.getLocation().getBlock().getRelative(BlockFace.SOUTH))
-				|| isWeb(player.getLocation().getBlock().getRelative(BlockFace.EAST))
-				|| isWeb(player.getLocation().getBlock().getRelative(BlockFace.WEST));
-	}
-
-	/**
-	 * Determine whether a block is a web
-	 *
-	 * @param block block to check
-	 * @return true if web
-	 */
-	public static boolean isWeb(Block block) {
-		return block.getType() == XMaterial.COBWEB.parseMaterial();
+	public static boolean isNearWeb(final Player player) {
+		return isCollisionPoint(player.getLocation(), material -> material == XMaterial.COBWEB.parseMaterial());
 	}
 
 	/**
@@ -624,14 +530,8 @@ public final class Utilities {
 	 * @param player player to check
 	 * @return true if near climbable block
 	 */
-	public static boolean isNearClimbable(Player player) {
-		return isClimbableBlock(player.getLocation().getBlock())
-				|| isClimbableBlock(player.getLocation().getBlock().getRelative(BlockFace.DOWN))
-				|| isClimbableBlock(player.getLocation().getBlock().getRelative(BlockFace.UP))
-				|| isClimbableBlock(player.getLocation().getBlock().getRelative(BlockFace.NORTH))
-				|| isClimbableBlock(player.getLocation().getBlock().getRelative(BlockFace.SOUTH))
-				|| isClimbableBlock(player.getLocation().getBlock().getRelative(BlockFace.EAST))
-				|| isClimbableBlock(player.getLocation().getBlock().getRelative(BlockFace.WEST));
+	public static boolean isNearClimbable(final Player player) {
+		return isCollisionPoint(player.getLocation(), material -> CLIMBABLE.contains(material));
 	}
 
 	/**
@@ -640,14 +540,8 @@ public final class Utilities {
 	 * @param location location to check
 	 * @return true if near climbable block
 	 */
-	public static boolean isNearClimbable(Location location) {
-		return isClimbableBlock(location.getBlock())
-				|| isClimbableBlock(location.getBlock().getRelative(BlockFace.DOWN))
-				|| isClimbableBlock(location.getBlock().getRelative(BlockFace.UP))
-				|| isClimbableBlock(location.getBlock().getRelative(BlockFace.NORTH))
-				|| isClimbableBlock(location.getBlock().getRelative(BlockFace.SOUTH))
-				|| isClimbableBlock(location.getBlock().getRelative(BlockFace.EAST))
-				|| isClimbableBlock(location.getBlock().getRelative(BlockFace.WEST));
+	public static boolean isNearClimbable(final Location location) {
+		return isCollisionPoint(location, material -> CLIMBABLE.contains(material));
 	}
 
 	/**
@@ -851,13 +745,6 @@ public final class Utilities {
 		int rounded = (int) value;
 		return value < rounded ? rounded - 1 : rounded;
 	}
-
-	public static boolean isHoneyBlock(Block block) {
-		if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.BEE_UPDATE)) {
-			return false;
-		}
-		return block.getType() == XMaterial.HONEY_BLOCK.parseMaterial();
-	}
 	
 	/**
 	 * Computes the difference between two angles
@@ -891,6 +778,21 @@ public final class Utilities {
 			return computeGcd(b, a - Math.floor(a / b) * b);
 		}
     }
+	
+	public static boolean isCollisionPoint(final Location location, final Predicate<Material> predicate) {
+		final ArrayList<Material> materials = new ArrayList<>();
+		for (double x = -0.3; x <= 0.3; x += 0.3) {
+			for (double y = -0.3; y <= 0.3; y += 0.3) {
+				for (double z = -0.3; z <= 0.3; z += 0.3) {
+					final Material material = location.clone().add(x, y, z).getBlock().getType();
+					if (material != null) {
+						materials.add(material);
+					}
+				}
+			}
+		}
+		return materials.stream().anyMatch(predicate);
+	}
 	
 	static {
 		MinecraftVersion currentVersion = MinecraftVersion.getCurrentVersion();
@@ -1038,6 +940,12 @@ public final class Utilities {
 		}
 		// End 1.14 objects
 
+		// Start 1.15 objects
+		if (currentVersion.isAtLeast(MinecraftVersion.BEE_UPDATE)) {
+			CLIMBABLE.add(XMaterial.HONEY_BLOCK.parseMaterial());
+		}
+		// End 1.15 objects
+		
 		// Start 1.16 objects
 		if (currentVersion.isAtLeast(MinecraftVersion.NETHER_UPDATE)) {
 			CLIMBABLE.add(XMaterial.TWISTING_VINES.parseMaterial());
