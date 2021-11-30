@@ -370,7 +370,7 @@ itemspam:
   # The number of item drops we should wait before checking if the player has used item spam
   dropsToWait: 10
   # The minimum time in milliseconds it should have taken for the player to drop items 'dropsToWait' times
-  minimumTime: 800
+  minimumTime: 300
 # FastInventory check settings
 # Checks if the player moves items in the inventory too fast
 fastinventory:
