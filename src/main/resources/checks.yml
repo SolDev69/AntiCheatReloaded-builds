@@ -273,7 +273,7 @@ morepackets:
   # Maximum amount of lag compensation a player can acquire (50ms = 1 tick)
   minimumClamp: 1250
   # The amount of milliseconds offset between packets before flagging (50ms = 1 tick)
-  triggerBalance: 200
+  triggerBalance: 250
   # The amount of milliseconds to compensate for a teleport (50ms = 1 tick)
   teleportCompensation: 500
   # Should this check be disabled for 'lagging' players?

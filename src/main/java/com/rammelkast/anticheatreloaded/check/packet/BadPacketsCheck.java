@@ -18,9 +18,6 @@
  */
 package com.rammelkast.anticheatreloaded.check.packet;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -34,6 +31,7 @@ import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.event.EventListener;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
+import com.rammelkast.anticheatreloaded.util.Utilities;
 
 public final class BadPacketsCheck {
 
@@ -69,20 +67,24 @@ public final class BadPacketsCheck {
 		final double z = packet.getDoubles().read(2);
 		final float yaw = packet.getFloat().read(0);
 		// Create location from new data
-		final Location previous = player.getLocation();
-		final Location current = new Location(previous.getWorld(), x, y, z, yaw, pitch);
-		final double distance = previous.distanceSquared(current);
-		double maxDistance = checksConfig.getDouble(CheckType.BADPACKETS, "maxDistance");
-		// Fix falling false
-		if (movementManager.airTicks >= 40 && movementManager.motionY < 0 && movementManager.lastMotionY < 0) {
-			maxDistance *= 1.5D;
-		}
-		
-		if (distance > maxDistance) {
+		final Location previous = player.getLocation().clone();
+		// Only take horizontal distance
+		previous.setY(0);
+		final Location current = new Location(previous.getWorld(), x, 0, z, yaw, pitch);
+		final double distanceHorizontal = previous.distanceSquared(current);
+		final double distanceVertical = y - player.getLocation().getY();
+		final double maxDistanceHorizontal = checksConfig.getDouble(CheckType.BADPACKETS, "maxDistance")
+				+ user.getVelocityTracker().getHorizontal();
+		if (distanceHorizontal > maxDistanceHorizontal) {
 			flag(player, event,
-					"moved too far between packets (distance="
-							+ new BigDecimal(distance).setScale(1, RoundingMode.HALF_UP) + ", max=" + maxDistance
-							+ ", at=" + movementManager.airTicks + ")");
+					"moved too far between packets (HT, distance=" + Utilities.roundDouble(distanceHorizontal, 1)
+							+ ", max=" + Utilities.roundDouble(maxDistanceHorizontal, 1) + ")");
+			return;
+		}
+
+		if (distanceVertical < -4.0D && user.getVelocityTracker().getVertical() != 0.0D) {
+			flag(player, event, "moved too far between packets (VT, distance="
+					+ Utilities.roundDouble(Math.abs(distanceVertical), 1) + ", max=4.0)");
 			return;
 		}
 	}

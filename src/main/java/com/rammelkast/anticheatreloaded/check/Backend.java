@@ -202,7 +202,8 @@ public class Backend {
 		if (y <= 0.11761 && y >= 0.11759 && !Utilities.isClimbableBlock(player.getLocation().getBlock())
 				&& !Utilities.isClimbableBlock(player.getEyeLocation().getBlock())
 				&& !Utilities.isClimbableBlock(player.getLocation().clone().add(0, -0.98, 0).getBlock())
-				&& !Utilities.isNearClimbable(player)) {
+				&& !Utilities.isNearClimbable(player)
+				&& !player.isGliding()) {
 			return new CheckResult(CheckResult.Result.FAILED,
 					"tried to climb a non-climbable block (" + player.getLocation().getBlock().getType() + ")");
 		} else {

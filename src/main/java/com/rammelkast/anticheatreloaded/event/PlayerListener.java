@@ -285,7 +285,7 @@ public final class PlayerListener extends EventListener {
 		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(final PlayerInteractEvent event) {
 		final Player player = event.getPlayer();
 		final PlayerInventory inv = player.getInventory();

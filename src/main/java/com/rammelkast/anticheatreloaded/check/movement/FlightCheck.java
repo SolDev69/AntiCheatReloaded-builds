@@ -114,10 +114,12 @@ public final class FlightCheck {
 					&& !Utilities.isNearClimbable(distance.getTo().clone().subtract(0, 1.25, 0))
 					&& !Utilities.isNearClimbable(distance.getTo().clone().subtract(0, 0.75, 0))
 					&& (!Utilities.isNearWater(distance.getTo().clone().subtract(0, 1.5, 0))
-							&& distance.getTo().clone().subtract(0, 0.5, 0).getBlock().getType() != Material.AIR))
+							&& distance.getTo().clone().subtract(0, 0.5, 0).getBlock().getType() != Material.AIR)) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirFlight",
 						"tried to fly on the Y-axis (mY=" + movementManager.motionY + ", max=" + maxMotionY + ")");
+			}
 
+			// TODO falses when falling large distances
 			if (Math.abs(movementManager.motionY
 					- movementManager.lastMotionY) < (movementManager.airTicks >= 115 ? 1E-3 : 5E-3)
 					&& !Utilities.couldBeOnBoat(player)
@@ -127,9 +129,10 @@ public final class FlightCheck {
 					&& movementManager.elytraEffectTicks <= 25
 					&& !Utilities.isNearClimbable(distance.getFrom().clone().subtract(0, 0.51D, 0))
 					&& !Utilities.isNearWater(player)
-					&& !Utilities.isNearWater(distance.getFrom().clone().subtract(0, 0.51, 0)))
+					&& !Utilities.isNearWater(distance.getFrom().clone().subtract(0, 0.51, 0))) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirFlight", "had too little Y dropoff (diff="
 						+ Math.abs(movementManager.motionY - movementManager.lastMotionY) + ")");
+			}
 		}
 		// End AirFlight
 

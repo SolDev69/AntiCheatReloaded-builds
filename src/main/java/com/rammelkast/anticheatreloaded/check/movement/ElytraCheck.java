@@ -38,14 +38,16 @@ public final class ElytraCheck {
 	public static final HashMap<UUID, Double> JUMP_Y_VALUE = new HashMap<UUID, Double>();
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
-	public static CheckResult runCheck(Player player, Distance distance) {
+	public static CheckResult runCheck(final Player player, final Distance distance) {
 		// Not relevant
 		if (Utilities.isNearWater(player)) {
 			return PASS;
 		}
 		
-		UUID uuid = player.getUniqueId();
-		if (distance.getYDifference() > AntiCheatReloaded.getManager().getBackend().getMagic().TELEPORT_MIN()) {
+		final UUID uuid = player.getUniqueId();
+		if (distance.getYDifference() > AntiCheatReloaded.getManager().getBackend().getMagic().TELEPORT_MIN()
+				|| System.currentTimeMillis() - AntiCheatReloaded.getManager().getUserManager().getUser(uuid)
+						.getMovementManager().lastTeleport <= 500) {
 			// This was a teleport, so skip check.
 			JUMP_Y_VALUE.remove(uuid);
 			return PASS;
@@ -56,8 +58,8 @@ public final class ElytraCheck {
 			return PASS;
 		}
 
-		double changeY = distance.toY() - distance.fromY();
-		boolean upwardMovement = changeY > 0;
+		final double changeY = distance.toY() - distance.fromY();
+		final boolean upwardMovement = changeY > 0;
 		if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.AQUATIC_UPDATE)) {
 			// Tident added in 1.13
 			if (player.getInventory().getItemInMainHand().getType() == XMaterial.TRIDENT.parseMaterial()) {
@@ -68,20 +70,19 @@ public final class ElytraCheck {
 			}
 		}
 
-		if (changeY == 0.0D) {
-			// Seen no false positives here yet
-			return new CheckResult(CheckResult.Result.FAILED, "had no Y-axis dropoff when gliding with Elytra");
-		}
-
 		if (!JUMP_Y_VALUE.containsKey(uuid)) {
 			// Distance + player height
 			JUMP_Y_VALUE.put(uuid, distance.toY() + 1.8D);
 			return PASS;
 		}
 		
-		double lastY = JUMP_Y_VALUE.get(uuid);
+		final double lastY = JUMP_Y_VALUE.get(uuid);
+		if (changeY == 0.0D && lastY < 9999.99D) {
+			return new CheckResult(CheckResult.Result.FAILED, "had no Y-axis dropoff when gliding with Elytra");
+		}
+		
 		if (lastY < distance.toY()) {
-			double diff = distance.toY() - lastY;
+			final double diff = distance.toY() - lastY;
 			if (diff > 0.7675) {
 				if (!AntiCheatReloaded.getManager().getBackend().silentMode()) {
 					Location to = player.getLocation();
