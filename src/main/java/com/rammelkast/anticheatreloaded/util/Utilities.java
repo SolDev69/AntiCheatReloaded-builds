@@ -40,6 +40,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 
+import com.cryptomorin.xseries.XMaterial;
+
 public final class Utilities {
 	private static final List<Material> INSTANT_BREAK = new ArrayList<Material>();
 	private static final List<Material> FOOD = new ArrayList<Material>();
@@ -223,13 +225,14 @@ public final class Utilities {
 				|| isHalfblock(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
 	}
 
-	public static boolean isHalfblock(Block block) {
+	public static boolean isHalfblock(final Block block) {
 		// getBoundingBox() is only available on 1.14+
 		if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.VILLAGE_UPDATE)) {
 			BoundingBox box = block.getBoundingBox();
-			double height = box.getMaxY() - box.getMinY();
-			if (height > 0.42 && height <= 0.6 && block.getType().isSolid())
+			final double height = box.getMaxY() - box.getMinY();
+			if (height > 0.42 && height <= 0.6 && block.getType().isSolid()) {
 				return true;
+			}
 		}
 		return isSlab(block) || isStair(block) || isWall(block) || block.getType() == Material.SNOW
 				|| block.getType().name().endsWith("HEAD");
@@ -399,8 +402,8 @@ public final class Utilities {
 	 * @param block block to check
 	 * @return true if slab
 	 */
-	public static boolean isSlab(Block block) {
-		Material type = block.getType();
+	public static boolean isSlab(final Block block) {
+		final Material type = block.getType();
 		return type.name().endsWith("SLAB");
 	}
 
@@ -410,8 +413,8 @@ public final class Utilities {
 	 * @param block block to bed
 	 * @return true if bed
 	 */
-	public static boolean isBed(Block block) {
-		Material type = block.getType();
+	public static boolean isBed(final Block block) {
+		final Material type = block.getType();
 		return type.name().endsWith("BED");
 	}
 

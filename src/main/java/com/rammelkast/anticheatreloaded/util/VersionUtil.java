@@ -137,7 +137,7 @@ public class VersionUtil {
 	}
 
 	static {
-		SUPPORTED_VERSIONS = Arrays.asList(new String[] { "v1_17", "v1_16", "v1_15", "v1_14", "v1_13", "v1_12" });
+		SUPPORTED_VERSIONS = Arrays.asList(new String[] { "v1_18", "v1_17", "v1_16", "v1_15", "v1_14", "v1_13", "v1_12" });
 		CURRENT_VERSION = MinecraftVersion.getCurrentVersion();
 	}
 }

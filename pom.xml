@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>com.rammelkast.anticheatreloaded</groupId>
    <artifactId>AntiCheatReloaded</artifactId>
-   <version>1.10.1-PRE</version>
+   <version>1.10.2-PRE</version>
    <name>AntiCheatReloaded</name>
    <url>https://www.spigotmc.org/resources/anticheatreloaded.23799/</url>
    <properties>
@@ -50,15 +50,30 @@
                   <goals>
                      <goal>shade</goal>
                   </goals>
+                  <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <relocations>
+                        <relocation>
+            				<pattern>org.bstats</pattern>
+           					<shadedPattern>com.rammelkast.anticheatreloaded.util</shadedPattern>
+          				</relocation>
+                        <relocation>
+            				<pattern>com.cryptomorin.xseries</pattern>
+           					<shadedPattern>com.rammelkast.anticheatreloaded.util</shadedPattern>
+          				</relocation>
+                    </relocations>
+        			<filters>
+            			<filter>
+                			<artifact>com.github.cryptomorin:*</artifact>
+                			<includes>
+                    			<include>com/cryptomorin/xseries/XMaterial*</include>
+                			</includes>
+            			</filter>
+        			</filters>
+                  </configuration>
                </execution>
             </executions>
-            <configuration>
-               <artifactSet>
-                  <includes>
-                     <include>com.rammelkast.*</include>
-                  </includes>
-               </artifactSet>
-            </configuration>
          </plugin>
       </plugins>
       <finalName>AntiCheatReloaded</finalName>
@@ -80,13 +95,13 @@
       <dependency>
          <groupId>com.comphenix.protocol</groupId>
          <artifactId>ProtocolLib</artifactId>
-         <version>4.7.0-SNAPSHOT</version>
+         <version>4.7.0</version>
          <scope>provided</scope>
       </dependency>
       <dependency>
       	<groupId>org.spigotmc</groupId>
       	<artifactId>spigot-api</artifactId>
-      	<version>1.17.1-R0.1-SNAPSHOT</version>
+      	<version>1.18-R0.1-SNAPSHOT</version>
       	<scope>provided</scope>
       </dependency>
 	  <dependency>
@@ -100,6 +115,18 @@
 		<artifactId>api</artifactId>
 		<version>2.0-SNAPSHOT</version>
 		<scope>provided</scope>
+	  </dependency>
+	  <dependency>
+		<groupId>org.bstats</groupId>
+		<artifactId>bstats-bukkit</artifactId>
+		<version>2.2.1</version>
+		<scope>compile</scope>
+	  </dependency>
+	  <dependency>
+  		<groupId>com.github.cryptomorin</groupId>
+  		<artifactId>XSeries</artifactId>
+  		<version>8.4.0</version>
+  		<scope>compile</scope>
 	  </dependency>
    </dependencies>
 </project>

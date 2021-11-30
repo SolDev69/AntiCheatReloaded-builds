@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.Backend;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
@@ -36,7 +37,6 @@ import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 import com.rammelkast.anticheatreloaded.util.VelocityTracker;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
-import com.rammelkast.anticheatreloaded.util.XMaterial;
 
 /**
  * @author Rammelkast TODO soulsand speed TODO buffer system

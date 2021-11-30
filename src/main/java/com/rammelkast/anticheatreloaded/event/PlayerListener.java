@@ -59,6 +59,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
@@ -77,7 +78,6 @@ import com.rammelkast.anticheatreloaded.util.Permission;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
-import com.rammelkast.anticheatreloaded.util.XMaterial;
 
 public final class PlayerListener extends EventListener {
 

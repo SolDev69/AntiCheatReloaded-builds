@@ -25,6 +25,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -42,7 +45,6 @@ import com.rammelkast.anticheatreloaded.event.InventoryListener;
 import com.rammelkast.anticheatreloaded.event.PlayerListener;
 import com.rammelkast.anticheatreloaded.event.VehicleListener;
 import com.rammelkast.anticheatreloaded.manage.AntiCheatManager;
-import com.rammelkast.anticheatreloaded.metrics.Metrics;
 import com.rammelkast.anticheatreloaded.util.PacketListener;
 import com.rammelkast.anticheatreloaded.util.UpdateManager;
 import com.rammelkast.anticheatreloaded.util.User;
@@ -166,7 +168,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 				checkForSymbiosis();
 				try {
 					final Metrics metrics = new Metrics(AntiCheatReloaded.this, 202);
-					metrics.addCustomChart(new Metrics.SingleLineChart("cheaters_kicked", new Callable<Integer>() {
+					metrics.addCustomChart(new SingleLineChart("cheaters_kicked", new Callable<Integer>() {
 						@Override
 						public Integer call() throws Exception {
 							final int kicked = playersKicked;
@@ -175,25 +177,25 @@ public final class AntiCheatReloaded extends JavaPlugin {
 							return kicked;
 						}
 					}));
-					metrics.addCustomChart(new Metrics.SimplePie("protocollib_version", new Callable<String>() {
+					metrics.addCustomChart(new SimplePie("protocollib_version", new Callable<String>() {
 						@Override
 						public String call() throws Exception {
 							return Bukkit.getPluginManager().getPlugin("ProtocolLib").getDescription().getVersion();
 						}
 					}));
-					metrics.addCustomChart(new Metrics.SimplePie("nms_version", new Callable<String>() {
+					metrics.addCustomChart(new SimplePie("nms_version", new Callable<String>() {
 						@Override
 						public String call() throws Exception {
 							return VersionUtil.getVersion();
 						}
 					}));
-					metrics.addCustomChart(new Metrics.SimplePie("symbiosis", new Callable<String>() {
+					metrics.addCustomChart(new SimplePie("symbiosis", new Callable<String>() {
 						@Override
 						public String call() throws Exception {
 							return symbiosisMetric;
 						}
 					}));
-					metrics.addCustomChart(new Metrics.SimplePie("floodgate_enabled", new Callable<String>() {
+					metrics.addCustomChart(new SimplePie("floodgate_enabled", new Callable<String>() {
 						@Override
 						public String call() throws Exception {
 							return floodgateEnabled ? "Yes" : "No";
