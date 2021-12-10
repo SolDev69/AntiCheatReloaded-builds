@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -59,7 +60,7 @@ public class VersionUtil {
 	}
 
 	public static boolean isFlying(final Player player) {
-		return player.isFlying() || player.isGliding() || player.hasPotionEffect(PotionEffectType.LEVITATION)
+		return player.isFlying() || player.getGameMode() == GameMode.SPECTATOR || player.isGliding() || player.hasPotionEffect(PotionEffectType.LEVITATION)
 				|| AntiCheatReloaded.getManager().getBackend().justLevitated(player);
 	}
 
