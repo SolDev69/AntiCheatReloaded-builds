@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
@@ -96,15 +97,16 @@ public final class KillAuraCheck {
 	public static CheckResult checkAngle(final Player player, final EntityDamageEvent event) {
 		final UUID uuid = player.getUniqueId();
 		final Entity entity = event.getEntity();
+		
+		// Do not check while in vehicles
+		if (player.getVehicle() != null || entity.getVehicle() != null || player.getItemInUse() == XMaterial.TRIDENT.parseItem()) {
+			return PASS;
+		}
+		
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
 		// Check if enabled
 		if (!checksConfig.isSubcheckEnabled(CheckType.KILLAURA, "angle")) {
-			return PASS;
-		}
-		
-		// Do not check while in vehicles
-		if (player.getVehicle() != null || entity.getVehicle() != null) {
 			return PASS;
 		}
 
