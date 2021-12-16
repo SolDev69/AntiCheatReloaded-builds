@@ -30,11 +30,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
-import com.cryptomorin.xseries.XMaterial;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
-import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
+import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
@@ -99,7 +98,7 @@ public final class KillAuraCheck {
 		final Entity entity = event.getEntity();
 		
 		// Do not check while in vehicles
-		if (player.getVehicle() != null || entity.getVehicle() != null || player.getItemInUse() == XMaterial.TRIDENT.parseItem()) {
+		if (player.getVehicle() != null || entity.getVehicle() != null || player.isRiptiding()) {
 			return PASS;
 		}
 		

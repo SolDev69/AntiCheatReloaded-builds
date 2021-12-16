@@ -247,7 +247,8 @@ public final class SpeedCheck {
 		if (checksConfig.isSubcheckEnabled(CheckType.SPEED, "jumpBehaviour") && movementManager.touchedGroundThisTick
 				&& !boxedIn && movementManager.slimeInfluenceTicks <= 10 && !Utilities.isNearHalfblock(movingTowards)
 				&& !Utilities.isNearHalfblock(movingTowards.clone().subtract(0, 0.51, 0))
-				&& !Utilities.couldBeOnBoat(player, 0.8d, false)) {
+				&& !Utilities.couldBeOnBoat(player, 0.8, false)
+				&& movementManager.elytraEffectTicks <= 0) {
 			// This happens naturally
 			if (movementManager.airTicksBeforeGrounded == movementManager.groundTicks) {
 				final double minimumDistXZ = checksConfig.getDouble(CheckType.SPEED, "jumpBehaviour", "minimumDistXZ"); // Default
