@@ -27,6 +27,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
@@ -52,9 +53,10 @@ public final class BoatFlyCheck {
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		if (player.getVehicle().getType() == EntityType.BOAT) {
 			final Block bottom = player.getWorld().getBlockAt(to.getBlockX(), to.getBlockY() - 1, to.getBlockZ());
-			if (!Utilities.cantStandAt(bottom)) {
+			if (!Utilities.cantStandAt(bottom) || bottom.getType() == XMaterial.WATER.parseMaterial()) {
 				return PASS;
 			}
+			
 			int violations = VIOLATIONS.getOrDefault(uuid, 1);
 			if (violations++ >= checksConfig.getInteger(CheckType.BOATFLY, "vlBeforeFlag")) {
 				violations = 0;

@@ -261,7 +261,7 @@ public final class SpeedCheck {
 		}
 
 		// GroundSpeed
-		if (checksConfig.isSubcheckEnabled(CheckType.SPEED, "groundSpeed") && movementManager.groundTicks > 1) {
+		if (checksConfig.isSubcheckEnabled(CheckType.SPEED, "groundSpeed") && movementManager.groundTicks > 1 && movementManager.elytraEffectTicks < 10) {
 			final double initialLimit = checksConfig.getDouble(CheckType.SPEED, "groundSpeed", "initialLimit"); // Default
 																												// 0.34
 			double limit = initialLimit - 0.0055 * Math.min(9, movementManager.groundTicks);
