@@ -370,7 +370,7 @@ public final class Utilities {
 	 */
 	public static boolean isWall(final Block block) {
 		Material type = block.getType();
-		return type.name().endsWith("WALL") || type.name().endsWith("FENCE");
+		return type.name().endsWith("WALL") || type.name().endsWith("FENCE") || type.name().endsWith("FENCE_GATE");
 	}
 	
 	public static boolean isNearWall(final Location location) {
