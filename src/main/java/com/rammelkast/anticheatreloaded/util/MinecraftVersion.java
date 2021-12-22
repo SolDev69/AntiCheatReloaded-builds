@@ -36,13 +36,18 @@ import com.google.common.collect.Ordering;
  * 
  * @author Kristian
  */
-public final class MinecraftVersion implements Comparable<MinecraftVersion>, Serializable {
+public class MinecraftVersion implements Comparable<MinecraftVersion>, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Regular expression used to parse version strings.
 	 */
 	private static final Pattern VERSION_PATTERN = Pattern.compile(".*\\(.*MC.\\s*([a-zA-z0-9\\-.]+).*");
+
+	/**
+	 * Version 1.18 - caves and cliffs part 2
+	 */
+	public static final MinecraftVersion CAVES_CLIFFS_2 = new MinecraftVersion("1.18");
 
 	/**
 	 * Version 1.17 - caves and cliffs part 1
