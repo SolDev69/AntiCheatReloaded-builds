@@ -380,7 +380,7 @@ public final class SpeedCheck {
 				Utilities.couldBeOnBoat(player),
 				Utilities.isClimbableBlock(distance.getFrom().getBlock())
 						|| Utilities.isClimbableBlock(distance.getFrom().getBlock().getRelative(BlockFace.DOWN)),
-				movementManager.halfMovement, checksConfig);
+				(movementManager.halfMovement || Utilities.isNearWall(distance.getFrom())), checksConfig);
 		// Fix false positive with soulsand boost
 		if (movementManager.nearLiquidTicks > 6) {
 			maxMotionY *= 1.0525D;
@@ -407,7 +407,7 @@ public final class SpeedCheck {
 		// TODO config for these values
 		// TODO something funky vanilla stuff going on with 0.42, like 0.445.., check
 		// this..
-		double base = couldBeOnBoat ? 0.600000025 : (nearBed ? 0.5625 : ((halfMovement) ? 0.6 : 0.42));
+		double base = couldBeOnBoat ? 0.6f : (nearBed ? 0.5625f : ((halfMovement) ? 0.6f : 0.42f));
 		if (fromClimbable) {
 			base += checksConfig.getDouble(CheckType.SPEED, "verticalSpeed", "climbableCompensation"); // Default 0.04
 		}

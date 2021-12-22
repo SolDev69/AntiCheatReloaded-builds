@@ -4,7 +4,7 @@ description: AntiCheatReloaded helps easily identify and block malicious players
 main: com.rammelkast.anticheatreloaded.AntiCheatReloaded
 api-version: 1.13
 depend: [ProtocolLib]
-softdepend: [Floodgate]
+softdepend: [Floodgate, floodgate]
 startup: postworld
 version: ${project.build.version}
 commands:

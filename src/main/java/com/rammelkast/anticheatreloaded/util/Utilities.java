@@ -210,7 +210,7 @@ public final class Utilities {
 				return true;
 			}
 		}
-		return isSlab(block) || isStair(block) || isWall(block) || block.getType() == Material.SNOW
+		return isSlab(block) || isStair(block) || isWall(block) || block.getType() == XMaterial.SNOW.parseMaterial()
 				|| block.getType().name().endsWith("HEAD");
 	}
 
@@ -357,7 +357,7 @@ public final class Utilities {
 	 * @param block block to check
 	 * @return true if stair
 	 */
-	public static boolean isStair(Block block) {
+	public static boolean isStair(final Block block) {
 		Material type = block.getType();
 		return type.name().endsWith("STAIRS");
 	}
@@ -368,19 +368,20 @@ public final class Utilities {
 	 * @param block block to check
 	 * @return true if wall
 	 */
-	public static boolean isWall(Block block) {
+	public static boolean isWall(final Block block) {
 		Material type = block.getType();
 		return type.name().endsWith("WALL") || type.name().endsWith("FENCE");
 	}
-
-	/**
-	 * Determine whether a player is sprinting or flying
-	 *
-	 * @param player player to check
-	 * @return true if sprinting or flying
-	 */
-	public static boolean sprintFly(Player player) {
-		return player.isSprinting() || player.isFlying();
+	
+	public static boolean isNearWall(final Location location) {
+		return isWall(location.getBlock()) || isWall(location.getBlock().getRelative(BlockFace.NORTH))
+				|| isWall(location.getBlock().getRelative(BlockFace.SOUTH))
+				|| isWall(location.getBlock().getRelative(BlockFace.EAST))
+				|| isWall(location.getBlock().getRelative(BlockFace.WEST))
+				|| isWall(location.getBlock().getRelative(BlockFace.NORTH_EAST))
+				|| isWall(location.getBlock().getRelative(BlockFace.NORTH_WEST))
+				|| isWall(location.getBlock().getRelative(BlockFace.SOUTH_EAST))
+				|| isWall(location.getBlock().getRelative(BlockFace.SOUTH_WEST));
 	}
 
 	/**
