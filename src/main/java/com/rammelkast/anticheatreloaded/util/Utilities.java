@@ -185,9 +185,9 @@ public final class Utilities {
 	 */
 	public static boolean couldBeOnHalfblock(final Location location) {
 		return isNearHalfblock(
-				new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getBlockZ()))
+				new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getZ()))
 				|| isNearHalfblock(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
-						location.getBlockZ()));
+						location.getZ()));
 	}
 
 	public static boolean isNearHalfblock(final Location location) {
@@ -344,11 +344,11 @@ public final class Utilities {
 	 */
 	public static boolean isSlab(final Block block) {
 		final Material type = block.getType();
-		return type.name().endsWith("SLAB");
+		return type.name().toUpperCase().endsWith("SLAB") || type.name().toUpperCase().endsWith("STEP");
 	}
 
 	public static boolean isNearBed(final Location location) {
-		return isCollisionPoint(location, material -> material.name().endsWith("BED"));
+		return isCollisionPoint(location, material -> material.name().toUpperCase().endsWith("BED"));
 	}
 
 	/**

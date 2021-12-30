@@ -70,6 +70,13 @@ public class VersionUtil {
 		}
 		return player.hasPotionEffect(PotionEffectType.SLOW_FALLING);
 	}
+	
+	public static boolean isRiptiding(final Player player) {
+		if (!CURRENT_VERSION.isAtLeast(MinecraftVersion.AQUATIC_UPDATE)) {
+			return false;
+		}
+		return player.isRiptiding();
+	}
 
 	public static boolean isFrostWalk(final Player player) {
 		if (player.getInventory().getBoots() == null) {

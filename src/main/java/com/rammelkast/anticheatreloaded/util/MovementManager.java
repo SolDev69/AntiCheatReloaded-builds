@@ -218,15 +218,13 @@ public final class MovementManager {
 			}
 		}
 
-		if (VersionUtil.CURRENT_VERSION.isAtLeast(MinecraftVersion.AQUATIC_UPDATE)) {
-			if (player.isRiptiding()) {
-				this.riptideTicks = 30;
+		if (VersionUtil.isRiptiding(player)) {
+			this.riptideTicks = 30;
+		} else {
+			if (this.riptideTicks > 0) {
+				this.riptideTicks--;
 			} else {
-				if (this.riptideTicks > 0) {
-					this.riptideTicks--;
-				} else {
-					this.riptideTicks = 0;
-				}
+				this.riptideTicks = 0;
 			}
 		}
 
@@ -247,7 +245,7 @@ public final class MovementManager {
 		final Location bottom = to.clone().add(0, -1, 0);
 		this.bottomSolid = bottom.getBlock().getType().isSolid();
 
-		if ((this.motionY > 0.42D && this.motionY <= 0.5625D)
+		if ((this.motionY > 0.42f && this.motionY <= 0.5625f)
 				&& (Utilities.couldBeOnHalfblock(to) || Utilities.isNearBed(to))) {
 			this.halfMovement = true;
 			this.halfMovementHistoryCounter = 30;

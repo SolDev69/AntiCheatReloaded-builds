@@ -38,6 +38,7 @@ import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
+import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 public final class KillAuraCheck {
 
@@ -98,7 +99,7 @@ public final class KillAuraCheck {
 		final Entity entity = event.getEntity();
 		
 		// Do not check while in vehicles
-		if (player.getVehicle() != null || entity.getVehicle() != null || player.isRiptiding()) {
+		if (player.getVehicle() != null || entity.getVehicle() != null || VersionUtil.isRiptiding(player)) {
 			return PASS;
 		}
 		
