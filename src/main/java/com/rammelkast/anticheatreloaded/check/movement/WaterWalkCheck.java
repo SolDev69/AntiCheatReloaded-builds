@@ -79,6 +79,19 @@ public final class WaterWalkCheck {
 					+ Utilities.roundDouble(movementManager.distanceXZ, 5) + ", absMotionY="
 					+ Utilities.roundDouble(Math.abs(movementManager.lastMotionY - movementManager.motionY), 5) + ")");
 		}
+
+		if (checksConfig.isSubcheckEnabled(CheckType.WATER_WALK, "lunge") && Utilities.isSurroundedByWater(player)
+				&& movementManager.distanceXZ > 0.16 && movementManager.motionY > 0.0
+				&& movementManager.lastMotionY < 0.0
+				&& (Math.abs(movementManager.motionY) < 0.017 && Math.abs(movementManager.lastMotionY) < 0.02)
+				&& Math.abs(movementManager.lastMotionY - 0.004) < 0.021
+				&& user.getVelocityTracker().getHorizontal() < 0.04
+				&& !Utilities.couldBeOnBoat(player, 0.3, false)) {
+			return new CheckResult(Result.FAILED, "Lunge", "tried to lunge in water (xz="
+					+ Utilities.roundDouble(movementManager.distanceXZ, 5) + ", motionY="
+					+ Utilities.roundDouble(movementManager.motionY, 5) + ", lastMotionY="
+							+ Utilities.roundDouble(movementManager.lastMotionY, 5) + ")");
+		}
 		return PASS;
 	}
 

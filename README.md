@@ -4,7 +4,7 @@ AntiCheatReloaded helps server admins combat the use of hacked clients and spamb
 
 Installation
 ------------
-AntiCheatReloaded requires you to have ProtocolLib. You can download it [here](https://www.spigotmc.org/resources/protocollib.1997/).
+AntiCheatReloaded **requires** you to have ProtocolLib. You can download it [here](https://www.spigotmc.org/resources/protocollib.1997/).
 Simply drag and drop the AntiCheatReloaded and ProtocolLib jars in your plugin folder. You can now use AntiCheatReloaded, but be sure to have a look at the configuration files, which allow you to change every aspect of the plugin.
 
 Bug Reporting
