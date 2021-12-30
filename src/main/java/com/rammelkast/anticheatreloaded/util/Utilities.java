@@ -80,8 +80,8 @@ public final class Utilities {
 	 * @return true if the player should be unable to stand here
 	 */
 	public static boolean cantStandAtExp(final Location location) {
-		return cantStandAt(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
-				location.getBlockZ()).getBlock());
+		return cantStandAt(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
+				location.getZ()).getBlock());
 	}
 
 	/**
@@ -159,14 +159,16 @@ public final class Utilities {
 	 * @return true if the player could be standing on ice
 	 */
 	public static boolean couldBeOnIce(final Location location) {
-		return isNearIce(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
-				location.getBlockZ()))
-				|| isNearIce(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.26D,
-						location.getBlockZ()));
+		return isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
+				location.getZ()))
+				|| isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.26D,
+						location.getZ()))
+				|| isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
+						location.getZ()));
 	}
 
 	public static boolean isNearIce(final Location location) {
-		return isCollisionPoint(location, material -> material.name().endsWith("ICE"));
+		return isCollisionPoint(location, material -> material.name().toUpperCase().endsWith("ICE"));
 	}
 
 	public static boolean isNearShulkerBox(final Location location) {
@@ -174,7 +176,7 @@ public final class Utilities {
 		if (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.COLOR_UPDATE)) {
 			return false;
 		}
-		return isCollisionPoint(location, material -> material.name().endsWith("SHULKER_BOX"));
+		return isCollisionPoint(location, material -> material.name().toUpperCase().endsWith("SHULKER_BOX"));
 	}
 
 	/**
@@ -221,10 +223,10 @@ public final class Utilities {
 	 * @return true if the player could be standing on slime
 	 */
 	public static boolean couldBeOnSlime(final Location location) {
-		return isNearSlime(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
-				location.getBlockZ()))
-				|| isNearSlime(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.51D,
-						location.getBlockZ()));
+		return isNearSlime(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
+				location.getZ()))
+				|| isNearSlime(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
+						location.getZ()));
 	}
 
 	public static boolean isNearSlime(final Location location) {
@@ -238,10 +240,10 @@ public final class Utilities {
 	 * @return true if the player could be standing on soil
 	 */
 	public static boolean couldBeOnSoil(final Location location) {
-		return isNearSoil(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.01D,
-				location.getBlockZ()))
-				|| isNearSoil(new Location(location.getWorld(), fixXAxis(location.getX()), location.getY() - 0.51D,
-						location.getBlockZ()));
+		return isNearSoil(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
+				location.getZ()))
+				|| isNearSoil(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
+						location.getZ()));
 	}
 
 	public static boolean isNearSoil(final Location location) {

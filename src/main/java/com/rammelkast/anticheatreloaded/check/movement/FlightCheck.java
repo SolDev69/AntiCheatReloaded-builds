@@ -150,7 +150,7 @@ public final class FlightCheck {
 						|| Utilities.isNearBed(distance.getTo().clone().add(0, -0.51, 0)))
 						&& movementManager.motionY > 0.15))
 				&& movementManager.slimeInfluenceTicks == 0 && movementManager.elytraEffectTicks <= 25
-				&& !Utilities.couldBeOnBoat(player, 0.8d, false))
+				&& !Utilities.couldBeOnBoat(player, 0.8, false))
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
 					"tried to climb air (mY=" + movementManager.motionY + ")");
 
