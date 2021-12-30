@@ -175,6 +175,16 @@ public final class FlightCheck {
 					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
 		}
 
+		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.lastMotionY > 0.0
+				&& movementManager.motionY > 0.0 && movementManager.airTicks > 3
+				&& movementManager.motionY > movementManager.lastMotionY
+				&& user.getVelocityTracker().getVertical() <= 0.0
+				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
+				.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))) {
+			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
+					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+		}
+
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
 				&& !velocityTracker.isVelocitized() && movementManager.slimeInfluenceTicks <= 0
 				&& movementManager.elytraEffectTicks <= 25
