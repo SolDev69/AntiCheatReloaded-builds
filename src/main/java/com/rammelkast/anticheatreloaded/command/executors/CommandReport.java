@@ -108,7 +108,7 @@ public class CommandReport extends CommandBase {
 		String groupName = group == null ? "Low" : group.getName();
 		int pages = (int) Math.ceil(((float) users.size()) / 7);
 		if (page <= pages && page > 0) {
-			cs.sendMessage(GOLD + "----------------------[" + GRAY + "Page " + page + "/" + pages + "" + GOLD
+			cs.sendMessage(GOLD + "----------------------[" + WHITE + "Page " + page + "/" + pages + "" + GOLD
 					+ "]----------------------");
 			cs.sendMessage(GRAY + "Group: " + color + groupName);
 			for (int x = 0; x < 7; x++) {
@@ -121,7 +121,7 @@ public class CommandReport extends CommandBase {
 			cs.sendMessage(MENU_END);
 		} else {
 			if (pages == 0) {
-				cs.sendMessage(GOLD + "----------------------[" + GRAY + "Page 1/1" + GOLD + "]----------------------");
+				cs.sendMessage(GOLD + "----------------------[" + WHITE + "Page 1/1" + GOLD + "]----------------------");
 				cs.sendMessage(GRAY + "Group: " + color + groupName);
 				cs.sendMessage(GRAY + "There are no users in this group.");
 				cs.sendMessage(MENU_END);
@@ -152,7 +152,7 @@ public class CommandReport extends CommandBase {
 		groupString += " (" + user.getLevel() + ")";
 
 		if (page <= pages && page > 0) {
-			cs.sendMessage(GOLD + "----------------------[" + GRAY + "Page " + page + "/" + pages + "" + GOLD
+			cs.sendMessage(GOLD + "----------------------[" + WHITE + "Page " + page + "/" + pages + "" + GOLD
 					+ "]----------------------");
 			cs.sendMessage(GRAY + "Player: " + WHITE + name);
 			int ping = user.getPing();
@@ -177,7 +177,7 @@ public class CommandReport extends CommandBase {
 			cs.sendMessage(MENU_END);
 		} else {
 			if (pages == 0 && page == 1) {
-				cs.sendMessage(GOLD + "----------------------[" + GRAY + "Page 1/1" + GOLD + "]----------------------");
+				cs.sendMessage(GOLD + "----------------------[" + WHITE + "Page 1/1" + GOLD + "]----------------------");
 				cs.sendMessage(GRAY + "Player: " + WHITE + name);
 				int ping = user.getPing();
 				cs.sendMessage(GRAY + "Ping: " + ((ping == -1) ? (RED + "Offline")
