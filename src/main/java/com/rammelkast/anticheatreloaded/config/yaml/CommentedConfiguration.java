@@ -16,19 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.rammelkast.anticheatreloaded.config.yaml;
-
-import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.file.YamlConstructor;
-import org.bukkit.configuration.file.YamlRepresenter;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,6 +27,18 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.YamlConstructor;
+import org.bukkit.configuration.file.YamlRepresenter;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.representer.Representer;
 
 /**
  * An extension of {@link org.bukkit.configuration.file.YamlConfiguration} which preserves comments.
@@ -87,7 +87,7 @@ public class CommentedConfiguration extends YamlConfiguration {
                 blank++;
                 continue;
             }
-            if (lines[i].contains(COMMENT_PREFIX)) {
+            if (lines[i].contains("# ")) {
                 comments.put(i - blank, lines[i]);
             }
             i++;
@@ -104,7 +104,7 @@ public class CommentedConfiguration extends YamlConfiguration {
         // String header = buildHeader(); - CommentedConfiguration
         String dump = yaml.dump(getValues(false));
 
-        if (dump.equals(BLANK_CONFIG)) {
+        if (dump.equals("{}\\n")) {
             dump = "";
         }
 
@@ -200,5 +200,18 @@ public class CommentedConfiguration extends YamlConfiguration {
         }
 
         return config;
+    }
+    
+    private static void convertMapsToSections(Map<?, ?> input, ConfigurationSection section) {
+        for (Map.Entry<?, ?> entry : input.entrySet()) {
+            String key = entry.getKey().toString();
+            Object value = entry.getValue();
+
+            if (value instanceof Map) {
+                convertMapsToSections((Map<?, ?>) value, section.createSection(key));
+            } else {
+                section.set(key, value);
+            }
+        }
     }
 }
