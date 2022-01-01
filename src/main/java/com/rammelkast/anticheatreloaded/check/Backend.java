@@ -26,7 +26,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.potion.PotionEffectType;
@@ -39,6 +38,7 @@ import com.rammelkast.anticheatreloaded.check.movement.ElytraCheck;
 import com.rammelkast.anticheatreloaded.check.movement.FlightCheck;
 import com.rammelkast.anticheatreloaded.check.movement.NoSlowCheck;
 import com.rammelkast.anticheatreloaded.check.packet.MorePacketsCheck;
+import com.rammelkast.anticheatreloaded.check.player.NoFallCheck;
 import com.rammelkast.anticheatreloaded.config.Configuration;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.config.providers.Lang;
@@ -47,7 +47,6 @@ import com.rammelkast.anticheatreloaded.manage.AntiCheatManager;
 import com.rammelkast.anticheatreloaded.util.Distance;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 public class Backend {
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
@@ -57,7 +56,6 @@ public class Backend {
 	private final Map<UUID, Long> levitatingEnd = new HashMap<UUID, Long>();
 	private final Map<UUID, Integer> chatLevel = new HashMap<UUID, Integer>();
 	private final Map<UUID, Integer> commandLevel = new HashMap<UUID, Integer>();
-	private final Map<UUID, Integer> nofallViolation = new HashMap<UUID, Integer>();
 	private final Map<UUID, Integer> fastPlaceViolation = new HashMap<UUID, Integer>();
 	private final Map<UUID, Long> lastBlockPlaced = new HashMap<UUID, Long>();
 	private final Map<UUID, Long> lastBlockPlaceTime = new HashMap<UUID, Long>();
@@ -105,7 +103,6 @@ public class Backend {
 		startEat.remove(uuid);
 		lastHeal.remove(uuid);
 		sprinted.remove(uuid);
-		nofallViolation.remove(uuid);
 		fastPlaceViolation.remove(uuid);
 		lastBlockPlaced.remove(uuid);
 		lastBlockPlaceTime.remove(uuid);
@@ -124,6 +121,7 @@ public class Backend {
 		fastSneakViolations.remove(uuid);
 		lastSneak.remove(uuid);
 		levitatingEnd.remove(uuid);
+		NoFallCheck.VIOLATIONS.remove(uuid);
 		VelocityCheck.VIOLATIONS.remove(uuid);
 		MorePacketsCheck.LAST_PACKET_TIME.remove(uuid);
 		MorePacketsCheck.PACKET_BALANCE.remove(uuid);
@@ -209,40 +207,6 @@ public class Backend {
 		} else {
 			return PASS;
 		}
-	}
-
-	public CheckResult checkNoFall(final Player player, final double y) {
-		final UUID uuid = player.getUniqueId();
-		if (player.getGameMode() != GameMode.CREATIVE && !player.isInsideVehicle() && !player.isSleeping()
-				&& !isMovingExempt(player) && !justPlaced(player) && !Utilities.isNearWater(player)
-				&& !Utilities.isInWeb(player) && !player.getLocation().getBlock().getType().name().endsWith("TRAPDOOR")
-				&& !VersionUtil.isSlowFalling(player)
-				&& !Utilities
-						.isNearShulkerBox(player.getLocation().getBlock().getRelative(BlockFace.DOWN).getLocation())
-				&& !Utilities.isNearClimbable(player)
-				&& !Utilities.isNearWater(player.getLocation().clone().subtract(0, 1.5, 0))) {
-			if (player.getFallDistance() == 0) {
-				if (nofallViolation.get(uuid) == null) {
-					nofallViolation.put(uuid, 1);
-				} else {
-					nofallViolation.put(uuid, nofallViolation.get(player.getUniqueId()) + 1);
-				}
-
-				int i = nofallViolation.get(uuid);
-				int vlBeforeFlag = checksConfig.getInteger(CheckType.NOFALL, "vlBeforeFlag");
-				if (i >= vlBeforeFlag) {
-					nofallViolation.put(player.getUniqueId(), 1);
-					return new CheckResult(CheckResult.Result.FAILED,
-							"tried to avoid fall damage (" + i + " times in a row, max=" + vlBeforeFlag + ")");
-				} else {
-					return PASS;
-				}
-			} else {
-				nofallViolation.put(uuid, 0);
-				return PASS;
-			}
-		}
-		return PASS;
 	}
 
 	public CheckResult checkSneakToggle(final Player player) {
@@ -534,7 +498,7 @@ public class Backend {
 		manager.getUserManager().getUser(player.getUniqueId()).getMovementManager().lastTeleport = System
 				.currentTimeMillis();
 		/* Data for fly/speed should be reset */
-		nofallViolation.remove(player.getUniqueId());
+		NoFallCheck.VIOLATIONS.remove(player.getUniqueId());
 		ElytraCheck.JUMP_Y_VALUE.remove(player.getUniqueId());
 	}
 

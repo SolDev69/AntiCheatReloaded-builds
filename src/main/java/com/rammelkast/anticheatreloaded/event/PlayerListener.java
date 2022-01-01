@@ -72,6 +72,7 @@ import com.rammelkast.anticheatreloaded.check.movement.SpeedCheck;
 import com.rammelkast.anticheatreloaded.check.movement.StrafeCheck;
 import com.rammelkast.anticheatreloaded.check.movement.WaterWalkCheck;
 import com.rammelkast.anticheatreloaded.check.player.IllegalInteract;
+import com.rammelkast.anticheatreloaded.check.player.NoFallCheck;
 import com.rammelkast.anticheatreloaded.manage.AntiCheatManager;
 import com.rammelkast.anticheatreloaded.util.Distance;
 import com.rammelkast.anticheatreloaded.util.Permission;
@@ -82,7 +83,7 @@ import com.rammelkast.anticheatreloaded.util.VersionUtil;
 public final class PlayerListener extends EventListener {
 
 	private static final AntiCheatManager MANAGER = AntiCheatReloaded.getManager();
-	
+
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		final Player player = event.getPlayer();
@@ -184,18 +185,18 @@ public final class PlayerListener extends EventListener {
 		if (!user.getMovementManager().onGround) {
 			return;
 		}
-		
+
 		final double motionY = velocity.getY();
 		user.getMovementManager().velocityExpectedMotionY = motionY;
 		// End part of Velocity check
-		
+
 		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerChat(final AsyncPlayerChatEvent event) {
 		final Player player = event.getPlayer();
-		
+
 		if (getCheckManager().willCheck(player, CheckType.CHAT_SPAM)) {
 			final CheckResult result = getBackend().checkChatSpam(player, event.getMessage());
 			if (result.failed()) {
@@ -252,7 +253,8 @@ public final class PlayerListener extends EventListener {
 			}).get();
 			getUserManager().removeUser(user);
 		} catch (final InterruptedException | ExecutionException exception) {
-			AntiCheatReloaded.getPlugin().getLogger().log(Level.SEVERE, "Failed to destroy user object async", exception);
+			AntiCheatReloaded.getPlugin().getLogger().log(Level.SEVERE, "Failed to destroy user object async",
+					exception);
 			return;
 		}
 
@@ -290,7 +292,8 @@ public final class PlayerListener extends EventListener {
 		final Player player = event.getPlayer();
 		final PlayerInventory inv = player.getInventory();
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			final ItemStack itemInHand = ((event.getHand() == EquipmentSlot.HAND) ? inv.getItemInMainHand() : inv.getItemInOffHand());
+			final ItemStack itemInHand = ((event.getHand() == EquipmentSlot.HAND) ? inv.getItemInMainHand()
+					: inv.getItemInOffHand());
 
 			if (itemInHand.getType() == Material.BOW) {
 				getBackend().logBowWindUp(player);
@@ -372,10 +375,11 @@ public final class PlayerListener extends EventListener {
 			}).get();
 			getUserManager().addUser(user);
 		} catch (final InterruptedException | ExecutionException exception) {
-			AntiCheatReloaded.getPlugin().getLogger().log(Level.SEVERE, "Failed to create user object async", exception);
+			AntiCheatReloaded.getPlugin().getLogger().log(Level.SEVERE, "Failed to create user object async",
+					exception);
 			return;
 		}
-		
+
 		MANAGER.addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
 
 		if (player.hasPermission("anticheat.admin") && !AntiCheatReloaded.getUpdateManager().isLatest()) {
@@ -427,7 +431,8 @@ public final class PlayerListener extends EventListener {
 			}
 			if (getCheckManager().willCheckQuick(player, CheckType.VCLIP)
 					&& event.getFrom().getY() > event.getTo().getY()) {
-				final CheckResult result = getBackend().checkVClip(player, new Distance(event.getFrom(), event.getTo()));
+				final CheckResult result = getBackend().checkVClip(player,
+						new Distance(event.getFrom(), event.getTo()));
 				if (result.failed()) {
 					if (!silentMode()) {
 						int data = result.getData() > 3 ? 3 : result.getData();
@@ -447,7 +452,7 @@ public final class PlayerListener extends EventListener {
 					&& getCheckManager().willCheck(player, CheckType.FLIGHT)
 					&& !Utilities.isClimbableBlock(player.getLocation().getBlock())
 					&& event.getFrom().getY() > event.getTo().getY()) {
-				final CheckResult result = getBackend().checkNoFall(player, y);
+				final CheckResult result = NoFallCheck.performCheck(player, y);
 				if (result.failed()) {
 					if (!silentMode()) {
 						event.setTo(user.getGoodLocation(from.clone()));

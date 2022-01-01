@@ -75,7 +75,6 @@ public final class AntiCheatReloaded extends JavaPlugin {
 	private static boolean verbose;
 
 	private double tps = -1;
-	private String symbiosisMetric = "None";
 
 	@Override
 	public void onLoad() {
@@ -165,7 +164,6 @@ public final class AntiCheatReloaded extends JavaPlugin {
 		getServer().getScheduler().runTaskLater(this, new Runnable() {
 			@Override
 			public void run() {
-				checkForSymbiosis();
 				try {
 					final Metrics metrics = new Metrics(AntiCheatReloaded.this, 202);
 					metrics.addCustomChart(new SingleLineChart("cheaters_kicked", new Callable<Integer>() {
@@ -187,12 +185,6 @@ public final class AntiCheatReloaded extends JavaPlugin {
 						@Override
 						public String call() throws Exception {
 							return VersionUtil.getVersion();
-						}
-					}));
-					metrics.addCustomChart(new SimplePie("symbiosis", new Callable<String>() {
-						@Override
-						public String call() throws Exception {
-							return symbiosisMetric;
 						}
 					}));
 					metrics.addCustomChart(new SimplePie("floodgate_enabled", new Callable<String>() {
@@ -310,56 +302,6 @@ public final class AntiCheatReloaded extends JavaPlugin {
 
 	public void onPlayerKicked() {
 		this.playersKicked++;
-	}
-
-	/**
-	 * Creates metric that checks for anti-cheat symbiosis I use this to see if
-	 * AntiCheatReloaded is actively being used together with other anti-cheats, so
-	 * I can account for that.
-	 */
-	protected void checkForSymbiosis() {
-		if (Bukkit.getPluginManager().getPlugin("NoCheatPlus") != null) {
-			if (this.symbiosisMetric.equals("None")) {
-				this.symbiosisMetric = "NoCheatPlus";
-			} else {
-				this.symbiosisMetric += ", NoCheatPlus";
-			}
-		}
-		if (Bukkit.getPluginManager().getPlugin("Matrix") != null) {
-			if (this.symbiosisMetric.equals("None")) {
-				this.symbiosisMetric = "Matrix";
-			} else {
-				this.symbiosisMetric += ", Matrix";
-			}
-		}
-		if (Bukkit.getPluginManager().getPlugin("AAC") != null) {
-			if (this.symbiosisMetric.equals("None")) {
-				this.symbiosisMetric = "AAC";
-			} else {
-				this.symbiosisMetric += ", AAC";
-			}
-		}
-		if (Bukkit.getPluginManager().getPlugin("Spartan") != null) {
-			if (this.symbiosisMetric.equals("None")) {
-				this.symbiosisMetric = "Spartan";
-			} else {
-				this.symbiosisMetric += ", Spartan";
-			}
-		}
-		if (Bukkit.getPluginManager().getPlugin("Negativity") != null) {
-			if (this.symbiosisMetric.equals("None")) {
-				this.symbiosisMetric = "Negativity";
-			} else {
-				this.symbiosisMetric += ", Negativity";
-			}
-		}
-		if (Bukkit.getPluginManager().getPlugin("SoaromaSAC") != null) {
-			if (this.symbiosisMetric.equals("None")) {
-				this.symbiosisMetric = "SoaromaSAC";
-			} else {
-				this.symbiosisMetric += ", SoaromaSAC";
-			}
-		}
 	}
 
 	public static void sendToMainThread(final Runnable runnable) {

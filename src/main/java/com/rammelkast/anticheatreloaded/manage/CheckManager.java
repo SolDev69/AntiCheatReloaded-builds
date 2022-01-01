@@ -36,10 +36,9 @@ import com.rammelkast.anticheatreloaded.config.Configuration;
 import com.rammelkast.anticheatreloaded.util.VersionUtil;
 
 /**
- * <p/>
- * The manager that AntiCheat will check with to see if it should watch certain checks and certain players.
+ * The manager that AntiCheatReloaded will check with to see if it should watch
+ * certain checks and certain players.
  */
-
 public final class CheckManager {
 	
     private final AntiCheatManager manager;

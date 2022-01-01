@@ -31,7 +31,8 @@ import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 
 /*
- * In development - expect issues
+ * TODO redo (again)
+ * Just go for a basic GCD check and implement optifine detection
  */
 public final class AimbotCheck {
 
