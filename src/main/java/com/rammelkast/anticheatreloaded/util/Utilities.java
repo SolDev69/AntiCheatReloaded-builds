@@ -766,22 +766,15 @@ public final class Utilities {
 
 	/**
 	 * Calculates the greatest common divider
-	 * @param a value a
-	 * @param b value b
-	 * @return the greatest common divider of a and b
+	 * 
+	 * @param current  - The current value
+	 * @param previous - The previous value
+	 * @return - The GCD of those two values
 	 */
-	public static double computeGcd(final double a, final double b) {
-		if (a < b) {
-			return computeGcd(b, a);
-		}
+	public static long getGcd(final long current, final long previous) {
+		return (previous <= 16384L) ? current : getGcd(previous, current % previous);
+	}
 
-		if (Math.abs(b) < 0.001) {
-			return a;
-		} else {
-			return computeGcd(b, a - Math.floor(a / b) * b);
-		}
-    }
-	
 	public static boolean isCollisionPoint(final Location location, final Predicate<Material> predicate) {
 		final ArrayList<Material> materials = new ArrayList<>();
 		for (double x = -0.3; x <= 0.3; x += 0.3) {

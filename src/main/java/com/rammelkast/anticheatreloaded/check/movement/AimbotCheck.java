@@ -30,12 +30,9 @@ import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 
-/*
- * TODO redo (again)
- * Just go for a basic GCD check and implement optifine detection
- */
 public final class AimbotCheck {
 
+	private static final double EXPANDER = Math.pow(2, 24);
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 	
 	public static CheckResult runCheck(final Player player, final EntityDamageByEntityEvent event) {
@@ -49,19 +46,18 @@ public final class AimbotCheck {
 		final MovementManager movementManager = user.getMovementManager();
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		final float deltaPitch = movementManager.deltaPitch;
-		final float deltaYaw = movementManager.deltaYaw;
 		final float pitchAcceleration = Math.abs(deltaPitch - movementManager.lastDeltaPitch);
 
-		final double gcd = Utilities.computeGcd(deltaPitch, movementManager.lastDeltaPitch);
-		final double mod = Math.abs(player.getLocation().getPitch() % gcd);
+		final long gcd = Utilities.getGcd((long) (deltaPitch * EXPANDER),
+				(long) (movementManager.lastDeltaPitch * EXPANDER));
+		final double mod = Math.abs(player.getLocation().getPitch() % (gcd / EXPANDER));
 		final double minAcceleration = checksConfig.getDouble(CheckType.AIMBOT, "minAcceleration");
 		final double maxMod = checksConfig.getDouble(CheckType.AIMBOT, "maxMod");
-		if (mod < maxMod && pitchAcceleration > minAcceleration
-				&& (deltaPitch == 0.0f || (deltaPitch > 45.0f && deltaYaw > 45.0f))) {
+		if ((gcd > 0L && gcd < 131072L) && mod <= maxMod && pitchAcceleration > minAcceleration && deltaPitch > 5.0f) {
 			return new CheckResult(CheckResult.Result.FAILED,
-					"failed computational check (gcd=" + Utilities.roundDouble(gcd, 4) + ", mod="
-							+ Utilities.roundDouble(mod, 4) + ", accel=" + Utilities.roundDouble(pitchAcceleration, 4)
-							+ ")");
+					"failed computational check (gcd=" + gcd + ", mod="
+							+ Utilities.roundDouble(mod, 5) + ", accel=" + Utilities.roundDouble(pitchAcceleration, 3)
+							+ ", delta=" + Utilities.roundDouble(deltaPitch, 1) + ")");
 		}
 		return PASS;
 	}

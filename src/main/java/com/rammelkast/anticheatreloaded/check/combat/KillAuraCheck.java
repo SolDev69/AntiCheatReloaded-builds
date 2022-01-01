@@ -85,11 +85,11 @@ public final class KillAuraCheck {
 		// Velocity compensation
 		final double velocityMultiplier = checksConfig.getDouble(CheckType.KILLAURA, "reach", "velocityMultiplier");
 		allowedReach += Math.abs(target.getVelocity().length()) * velocityMultiplier;
-		final double reachedDistance = ((LivingEntity) target).getLocation().toVector()
-				.distance(player.getLocation().toVector());
-		if (reachedDistance > allowedReach) {
+		final double reachedDistance = Utilities.roundDouble(((LivingEntity) target).getLocation().toVector()
+				.distance(player.getLocation().toVector()), 2);
+		if (reachedDistance > Utilities.roundDouble(allowedReach, 2)) {
 			return new CheckResult(CheckResult.Result.FAILED, "Reach",
-					"reached too far (distance=" + Utilities.roundDouble(reachedDistance, 6) + ", max=" + Utilities.roundDouble(allowedReach, 6) + ")");
+					"reached too far (distance=" + reachedDistance + ", max=" + Utilities.roundDouble(allowedReach, 2) + ")");
 		}
 		return PASS;
 	}
