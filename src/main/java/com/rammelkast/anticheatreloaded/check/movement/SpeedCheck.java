@@ -62,6 +62,9 @@ public final class SpeedCheck {
 	/**
 	 * Largely based on Elevated's Frequency speed check
 	 * @see https://github.com/ElevatedDev/Frequency/blob/master/src/main/java/xyz/elevated/frequency/check/impl/speed/Speed.java
+	 * 
+	 * TODO fix falses with jumping under blocks
+	 * TODO fix falses with entity collisions
 	 */
 	public static CheckResult checkPredict(final Player player, final Location movingTowards) {
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();

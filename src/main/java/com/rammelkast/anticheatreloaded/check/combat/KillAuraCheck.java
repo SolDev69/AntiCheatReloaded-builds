@@ -40,6 +40,7 @@ import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
+import com.rammelkast.anticheatreloaded.util.MinecraftVersion;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
@@ -247,6 +248,13 @@ public final class KillAuraCheck {
 	}
 
 	public static CheckResult checkThroughWalls(final Player player, final Entity target) {
+		// TODO this does not work on 1.12.2
+		// Either we finally drop 1.12.2 as well, or we create a workaround
+		// For now we just skip if server version is 1.12.2
+		if (MinecraftVersion.getCurrentVersion().getMinor() <= 12) {
+			return PASS;
+		}
+			
 		final UUID uuid = player.getUniqueId();
 		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(uuid);
 		final MovementManager movementManager = user.getMovementManager();
