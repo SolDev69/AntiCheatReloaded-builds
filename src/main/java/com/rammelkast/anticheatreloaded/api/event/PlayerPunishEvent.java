@@ -31,43 +31,44 @@ import com.rammelkast.anticheatreloaded.util.User;
  */
 public final class PlayerPunishEvent extends Event implements Cancellable {
 
-    private static final HandlerList handlers = new HandlerList();
+	private static final HandlerList handlers = new HandlerList();
 
-    private final User user;
-    private final List<String> actions;
-    
-    private boolean cancelled;
+	private final User user;
+	private final List<String> actions;
 
-    public PlayerPunishEvent(final User user, final List<String> actions) {
-        this.user = user;
-        this.actions = actions;
-    }
+	private boolean cancelled;
 
-    /**
-     * Get the {@link com.rammelkast.anticheatreloaded.util.User} who failed the check
-     *
-     * @return a {@link com.rammelkast.anticheatreloaded.util.User}
-     */
-    public User getUser() {
-        return user;
-    }
+	public PlayerPunishEvent(final User user, final List<String> actions) {
+		this.user = user;
+		this.actions = actions;
+	}
 
-    /**
-     * Get the list of actions the punishment will perform
-     *
-     * @return a a list of punishment strings
-     */
-    public List<String> getActions() {
-        return actions;
-    }
+	/**
+	 * Get the {@link com.rammelkast.anticheatreloaded.util.User} who will be
+	 * punished
+	 * 
+	 * @return a {@link com.rammelkast.anticheatreloaded.util.User}
+	 */
+	public User getUser() {
+		return user;
+	}
 
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-    
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
+	/**
+	 * Get the list of actions the punishment will perform
+	 *
+	 * @return a a list of punishment strings
+	 */
+	public List<String> getActions() {
+		return actions;
+	}
+
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 
 	@Override
 	public boolean isCancelled() {
