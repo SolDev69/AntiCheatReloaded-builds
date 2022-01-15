@@ -16,28 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package com.rammelkast.anticheatreloaded.api.event;
 
-package com.rammelkast.anticheatreloaded.api;
+import java.util.List;
 
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.util.User;
 
 /**
- * Fired when a player fails an AntiCheatReloaded check
+ * Fired when a player is punished by AntiCheatReloaded
  */
-public final class CheckFailEvent extends Event {
+public final class PlayerPunishEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
 
     private final User user;
-    private final CheckType type;
+    private final List<String> actions;
+    
+    private boolean cancelled;
 
-    public CheckFailEvent(final User user, final CheckType type) {
+    public PlayerPunishEvent(final User user, final List<String> actions) {
         this.user = user;
-        this.type = type;
+        this.actions = actions;
     }
 
     /**
@@ -50,12 +53,12 @@ public final class CheckFailEvent extends Event {
     }
 
     /**
-     * Get the {@link com.rammelkast.anticheatreloaded.check.CheckType} failed
+     * Get the list of actions the punishment will perform
      *
-     * @return a {@link com.rammelkast.anticheatreloaded.check.CheckType}
+     * @return a a list of punishment strings
      */
-    public CheckType getCheck() {
-        return type;
+    public List<String> getActions() {
+        return actions;
     }
 
     public HandlerList getHandlers() {
@@ -65,5 +68,15 @@ public final class CheckFailEvent extends Event {
     public static HandlerList getHandlerList() {
         return handlers;
     }
+
+	@Override
+	public boolean isCancelled() {
+		return cancelled;
+	}
+
+	@Override
+	public void setCancelled(boolean cancel) {
+		this.cancelled = cancel;
+	}
 
 }

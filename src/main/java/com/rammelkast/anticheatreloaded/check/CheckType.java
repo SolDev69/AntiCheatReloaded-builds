@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.rammelkast.anticheatreloaded.api.CheckFailEvent;
+import com.rammelkast.anticheatreloaded.api.event.CheckFailEvent;
 import com.rammelkast.anticheatreloaded.util.Permission;
 import com.rammelkast.anticheatreloaded.util.User;
 

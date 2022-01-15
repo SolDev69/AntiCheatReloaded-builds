@@ -29,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
+import com.rammelkast.anticheatreloaded.api.event.PlayerPunishEvent;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.Configuration;
 import com.rammelkast.anticheatreloaded.util.Group;
@@ -188,17 +189,26 @@ public final class UserManager {
 				if (user.getPlayer() == null) {
 					return;
 				}
+				
+				final PlayerPunishEvent event = new PlayerPunishEvent(user, actions);
+				{
+					Bukkit.getServer().getPluginManager().callEvent(event);
+					if (event.isCancelled()) {
+						return;
+					}
+				}
+				
 				final String name = user.getName();
-				for (String event : actions) {
-					event = event.replaceAll("%player%", name)
+				for (String action : actions) {
+					action = action.replaceAll("%player%", name)
 							.replaceAll("%world%", user.getPlayer().getWorld().getName())
 							.replaceAll("%check%", type.name());
 
-					if (event.startsWith("COMMAND[")) {
-						for (String cmd : Utilities.getCommands(event)) {
+					if (action.startsWith("COMMAND[")) {
+						for (String cmd : Utilities.getCommands(action)) {
 							Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd);
 						}
-					} else if (event.equalsIgnoreCase("KICK")) {
+					} else if (action.equalsIgnoreCase("KICK")) {
 						user.getPlayer().kickPlayer(ChatColor.translateAlternateColorCodes('&', kickReason));
 						AntiCheatReloaded.getPlugin().onPlayerKicked();
 						String msg = ChatColor.translateAlternateColorCodes('&',
@@ -208,14 +218,14 @@ public final class UserManager {
 							manager.log(msg);
 							manager.playerLog(msg);
 						}
-					} else if (event.equalsIgnoreCase("WARN")) {
+					} else if (action.equalsIgnoreCase("WARN")) {
 						List<String> message = warning;
 						for (String string : message) {
 							if (!string.equals("")) {
 								user.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', string));
 							}
 						}
-					} else if (event.equalsIgnoreCase("BAN")) {
+					} else if (action.equalsIgnoreCase("BAN")) {
 						Bukkit.getBanList(Type.NAME).addBan(user.getPlayer().getName(),
 								ChatColor.translateAlternateColorCodes('&', banReason), null, null);
 						user.getPlayer().kickPlayer(ChatColor.translateAlternateColorCodes('&', banReason));
@@ -226,7 +236,7 @@ public final class UserManager {
 							manager.log(msg);
 							manager.playerLog(msg);
 						}
-					} else if (event.equalsIgnoreCase("RESET")) {
+					} else if (action.equalsIgnoreCase("RESET")) {
 						user.resetLevel();
 					}
 				}
