@@ -30,7 +30,7 @@ import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 public final class FastLadderCheck {
 
@@ -42,7 +42,7 @@ public final class FastLadderCheck {
 		// Liquids are climbable blocks, so we have to add a seperate check
 		if (!Utilities.isClimbableBlock(player.getLocation().getBlock())
 				|| !Utilities.isClimbableBlock(player.getEyeLocation().getBlock())
-				|| player.getLocation().getBlock().isLiquid() || VersionUtil.isFlying(player)) {
+				|| player.getLocation().getBlock().isLiquid() || VersionLib.isFlying(player)) {
 			return PASS;
 		}
 

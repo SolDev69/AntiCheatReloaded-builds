@@ -35,7 +35,7 @@ import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 public final class BoatFlyCheck {
 
@@ -43,8 +43,8 @@ public final class BoatFlyCheck {
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
 	public static CheckResult runCheck(final Player player, final MovementManager movementManager, final Location to) {
-		if (movementManager.distanceXZ <= 0 || movementManager.motionY <= 1E-3
-				|| (System.currentTimeMillis() - movementManager.lastTeleport <= 50) || VersionUtil.isFlying(player)
+		if (movementManager.motionY <= 1E-3
+				|| (System.currentTimeMillis() - movementManager.lastTeleport <= 150) || VersionLib.isFlying(player)
 				|| !player.isInsideVehicle()) {
 			return PASS;
 		}

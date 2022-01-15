@@ -35,6 +35,10 @@ public final class AimbotCheck {
 	private static final double EXPANDER = Math.pow(2, 24);
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 	
+	/**
+	 * This falses sometimes?
+	 * TODO we need to check yaw deltas
+	 */
 	public static CheckResult runCheck(final Player player, final EntityDamageByEntityEvent event) {
 		final Backend backend = AntiCheatReloaded.getManager().getBackend();
 		if (backend.isMovingExempt(player)) {
@@ -53,7 +57,7 @@ public final class AimbotCheck {
 		final double mod = Math.abs(player.getLocation().getPitch() % (gcd / EXPANDER));
 		final double minAcceleration = checksConfig.getDouble(CheckType.AIMBOT, "minAcceleration");
 		final double maxMod = checksConfig.getDouble(CheckType.AIMBOT, "maxMod");
-		if ((gcd > 0L && gcd < 131072L) && mod <= maxMod && pitchAcceleration > minAcceleration && deltaPitch > 5.0f) {
+		if ((gcd > 0L && gcd < 131072L) && mod <= maxMod && pitchAcceleration > minAcceleration && deltaPitch > 5.0f && deltaPitch < 20.0f) {
 			return new CheckResult(CheckResult.Result.FAILED,
 					"failed computational check (gcd=" + gcd + ", mod="
 							+ Utilities.roundDouble(mod, 5) + ", accel=" + Utilities.roundDouble(pitchAcceleration, 3)

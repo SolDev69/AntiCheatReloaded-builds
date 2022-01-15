@@ -36,7 +36,7 @@ import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 import com.rammelkast.anticheatreloaded.util.VelocityTracker;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 /**
  * @author Rammelkast
@@ -47,11 +47,11 @@ public final class FlightCheck {
 	public static final Map<UUID, Float> GRAVITY_VIOLATIONS = new HashMap<UUID, Float>();
 
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
-	private static final double GRAVITY_FRICTION = 0.9800000190734863D;
+	private static final double GRAVITY_FRICTION = 0.98f;
 
 	public static CheckResult runCheck(final Player player, final Distance distance) {
 		if (distance.getYDifference() >= AntiCheatReloaded.getManager().getBackend().getMagic().TELEPORT_MIN()
-				|| VersionUtil.isFlying(player) || player.getVehicle() != null
+				|| VersionLib.isFlying(player) || player.getVehicle() != null
 				|| AntiCheatReloaded.getManager().getBackend().isMovingExempt(player)) {
 			// This was a teleport or user is flying/using elytra/in a vehicle, so we don't
 			// care about it.
@@ -70,7 +70,7 @@ public final class FlightCheck {
 
 		int minAirTicks = 13;
 		if (player.hasPotionEffect(PotionEffectType.JUMP)) {
-			minAirTicks += VersionUtil.getPotionLevel(player, PotionEffectType.JUMP) * 3;
+			minAirTicks += VersionLib.getPotionLevel(player, PotionEffectType.JUMP) * 3;
 		}
 
 		if (movementManager.halfMovementHistoryCounter > 25) {
@@ -125,11 +125,12 @@ public final class FlightCheck {
 					&& !Utilities.couldBeOnBoat(player)
 					&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 							.getInteger(CheckType.FLIGHT, "airFlight", "accountForTeleports"))
-					&& !VersionUtil.isSlowFalling(player) && !Utilities.isNearWeb(player)
+					&& !VersionLib.isSlowFalling(player) && !Utilities.isNearWeb(player)
 					&& movementManager.elytraEffectTicks <= 25
 					&& !Utilities.isNearClimbable(distance.getFrom().clone().subtract(0, 0.51D, 0))
 					&& !Utilities.isNearWater(player)
-					&& !Utilities.isNearWater(distance.getFrom().clone().subtract(0, 0.51, 0))) {
+					&& !Utilities.isNearWater(distance.getFrom().clone().subtract(0, 0.51, 0))
+					&& velocityTracker.getVertical() == 0.0) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirFlight", "had too little Y dropoff (diff="
 						+ Math.abs(movementManager.motionY - movementManager.lastMotionY) + ")");
 			}
@@ -229,7 +230,7 @@ public final class FlightCheck {
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 						.getInteger(CheckType.FLIGHT, "gravity", "accountForTeleports"))
 				&& !Utilities.isNearWeb(player) && movementManager.elytraEffectTicks <= 25
-				&& !VersionUtil.isSlowFalling(player)) {
+				&& !VersionLib.isSlowFalling(player)) {
 			final double gravitatedY = (movementManager.lastMotionY - 0.08) * GRAVITY_FRICTION;
 			final double offset = Math.abs(gravitatedY - movementManager.motionY);
 			double maxOffset = checksConfig.getDouble(CheckType.FLIGHT, "gravity", "maxOffset");

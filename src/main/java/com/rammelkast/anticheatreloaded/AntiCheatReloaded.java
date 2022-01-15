@@ -42,13 +42,13 @@ import com.rammelkast.anticheatreloaded.config.Configuration;
 import com.rammelkast.anticheatreloaded.event.BlockListener;
 import com.rammelkast.anticheatreloaded.event.EntityListener;
 import com.rammelkast.anticheatreloaded.event.InventoryListener;
+import com.rammelkast.anticheatreloaded.event.PacketListener;
 import com.rammelkast.anticheatreloaded.event.PlayerListener;
 import com.rammelkast.anticheatreloaded.event.VehicleListener;
 import com.rammelkast.anticheatreloaded.manage.AntiCheatManager;
-import com.rammelkast.anticheatreloaded.util.PacketListener;
 import com.rammelkast.anticheatreloaded.util.UpdateManager;
 import com.rammelkast.anticheatreloaded.util.User;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 import lombok.Getter;
 
@@ -118,13 +118,10 @@ public final class AntiCheatReloaded extends JavaPlugin {
 		setupProtocol();
 
 		Bukkit.getConsoleSender()
-				.sendMessage(PREFIX + ChatColor.GRAY + "Running Minecraft version " + VersionUtil.getVersion() + " "
-						+ (VersionUtil.isSupported() ? (ChatColor.GREEN + "(supported)")
+				.sendMessage(PREFIX + ChatColor.GRAY + "Running Minecraft version " + VersionLib.getVersion() + " "
+						+ (VersionLib.isSupported() ? (ChatColor.GREEN + "(supported)")
 								: (ChatColor.RED + "(NOT SUPPORTED!)")));
-
-		// Load protocol manager
-		PacketListener.load(protocolManager);
-
+		
 		// Check for Floodgate
 		if (Bukkit.getPluginManager().getPlugin("Floodgate") != null) {
 			floodgateEnabled = true;
@@ -184,7 +181,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 					metrics.addCustomChart(new SimplePie("nms_version", new Callable<String>() {
 						@Override
 						public String call() throws Exception {
-							return VersionUtil.getVersion();
+							return VersionLib.getVersion();
 						}
 					}));
 					metrics.addCustomChart(new SimplePie("floodgate_enabled", new Callable<String>() {
@@ -220,6 +217,7 @@ public final class AntiCheatReloaded extends JavaPlugin {
 
 	private void setupProtocol() {
 		protocolManager = ProtocolLibrary.getProtocolManager();
+		protocolManager.addPacketListener(new PacketListener(this));
 		verboseLog("Hooked into ProtocolLib");
 	}
 

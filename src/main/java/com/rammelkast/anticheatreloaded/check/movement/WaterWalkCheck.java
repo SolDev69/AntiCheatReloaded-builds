@@ -32,7 +32,7 @@ import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 public final class WaterWalkCheck {
 
@@ -44,7 +44,7 @@ public final class WaterWalkCheck {
 		final MovementManager movementManager = user.getMovementManager();
 
 		if (movementManager.distanceXZ <= 0 || player.getVehicle() != null || Utilities.isOnLilyPad(player) || Utilities.isOnCarpet(player)
-				|| movementManager.riptideTicks > 0 || VersionUtil.isSwimming(player) || VersionUtil.isFlying(player) || user.getVelocityTracker().isVelocitized()) {
+				|| movementManager.riptideTicks > 0 || VersionLib.isSwimming(player) || VersionLib.isFlying(player) || user.getVelocityTracker().isVelocitized()) {
 			return PASS;
 		}
 
@@ -68,7 +68,7 @@ public final class WaterWalkCheck {
 					"tried to hop on water (mY=" + Utilities.roundDouble(movementManager.motionY, 5) + ")");
 		}
 
-		final double minAbsMotionY = 0.12D + (VersionUtil.getPotionLevel(player, PotionEffectType.SPEED) * 0.05D);
+		final double minAbsMotionY = 0.12D + (VersionLib.getPotionLevel(player, PotionEffectType.SPEED) * 0.05D);
 		if (checksConfig.isSubcheckEnabled(CheckType.WATER_WALK, "lunge") && blockBeneath.isLiquid()
 				&& Utilities.isSurroundedByWater(player)
 				&& Math.abs(movementManager.lastMotionY - movementManager.motionY) > minAbsMotionY

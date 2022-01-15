@@ -34,7 +34,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 
-public class VersionUtil {
+public class VersionLib {
 
 	public static final MinecraftVersion CURRENT_VERSION;
 	private static final List<String> SUPPORTED_VERSIONS;

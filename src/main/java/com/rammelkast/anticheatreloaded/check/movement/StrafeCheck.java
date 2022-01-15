@@ -32,7 +32,7 @@ import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
 import com.rammelkast.anticheatreloaded.util.VelocityTracker;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 /**
  * 
@@ -46,24 +46,23 @@ public final class StrafeCheck {
 	public static CheckResult runCheck(final Player player, final double x, final double z, final Location from,
 			final Location to) {
 		if (!Utilities.cantStandAtExp(from) || !Utilities.cantStandAtExp(to) || Utilities.isNearWater(player)
-				|| Utilities.isNearClimbable(player) || VersionUtil.isFlying(player) || player.isDead()
+				|| Utilities.isNearClimbable(player) || VersionLib.isFlying(player) || player.isDead()
 				|| Utilities.isHalfblock(to.getBlock().getRelative(BlockFace.DOWN)) || Utilities.isNearHalfblock(to)) {
 			return PASS;
 		}
 
-		final User user = AntiCheatReloaded.getManager().getUserManager()
-				.getUser(player.getUniqueId());
+		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(player.getUniqueId());
 		final MovementManager movementManager = user.getMovementManager();
 		final VelocityTracker velocityTracker = user.getVelocityTracker();
 		if (velocityTracker.isVelocitized()) {
 			return PASS;
 		}
-		
+
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
 		if (System.currentTimeMillis() - movementManager.lastTeleport <= checksConfig.getInteger(CheckType.STRAFE,
 				"accountForTeleports") || movementManager.elytraEffectTicks >= 20
-				|| movementManager.halfMovementHistoryCounter >= 20 || Utilities.couldBeOnBoat(player, 0.5d, false)) {
+				|| movementManager.halfMovementHistoryCounter >= 20 || Utilities.couldBeOnBoat(player, 0.5, false)) {
 			return PASS;
 		}
 

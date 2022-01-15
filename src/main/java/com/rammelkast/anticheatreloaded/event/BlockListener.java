@@ -20,59 +20,55 @@ package com.rammelkast.anticheatreloaded.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
-import com.rammelkast.anticheatreloaded.check.player.IllegalInteract;
+import com.rammelkast.anticheatreloaded.check.player.IllegalInteractCheck;
 
-public class BlockListener extends EventListener {
+public final class BlockListener extends EventListener {
 
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBlockPlace(final BlockPlaceEvent event) {
         final Player player = event.getPlayer();
-        boolean noHack = true;
         if (getCheckManager().willCheck(player, CheckType.FAST_PLACE)) {
-            CheckResult result = getBackend().checkFastPlace(player);
+            final CheckResult result = getBackend().checkFastPlace(player);
             if (result.failed()) {
                 event.setCancelled(!silentMode());
                 log(result.getMessage(), player, CheckType.FAST_PLACE, result.getSubCheck());
-                noHack = false;
+                return;
             } 
         }
         
         if (getCheckManager().willCheck(player, CheckType.ILLEGAL_INTERACT)) {
-            CheckResult result = IllegalInteract.performCheck(player, event);
+            final CheckResult result = IllegalInteractCheck.runCheck(player, event);
             if (result.failed()) {
                 event.setCancelled(!silentMode());
                 log(result.getMessage(), player, CheckType.ILLEGAL_INTERACT, result.getSubCheck());
-                noHack = false;
+                return;
             } 
         }
-        if (noHack) {
-        	 decrease(player);
-             getBackend().logBlockPlace(player);
-        }
+        
+        decrease(player);
+        getBackend().logBlockPlace(player);
         AntiCheatReloaded.getManager().addEvent(event.getEventName(), event.getHandlers().getRegisteredListeners());
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBlockBreak(final BlockBreakEvent event) {
         final Player player = event.getPlayer();
-        boolean noHack = true;
-        CheckResult result;
         if (getCheckManager().willCheck(player, CheckType.ILLEGAL_INTERACT)) {
-            result = IllegalInteract.performCheck(player, event);
+            final CheckResult result = IllegalInteractCheck.runCheck(player, event);
             if (result.failed()) {
                 event.setCancelled(!silentMode());
                 log(result.getMessage(), player, CheckType.ILLEGAL_INTERACT, result.getSubCheck());
-                noHack = false;
+               	return;
             }
         }
-        if (noHack) {
-            decrease(player);
-        }
+        
+        decrease(player);
     }
 }

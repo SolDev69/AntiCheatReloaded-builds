@@ -33,7 +33,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.Configuration;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 /**
  * The manager that AntiCheatReloaded will check with to see if it should watch
@@ -191,7 +191,7 @@ public final class CheckManager {
                 && !isExempt(player, type)
                 && !type.checkPermission(player)
                 && !isOpExempt(player);
-        if ((type == CheckType.FLIGHT || type == CheckType.SPEED) && VersionUtil.isFlying(player)) {
+        if ((type == CheckType.FLIGHT || type == CheckType.SPEED) && VersionLib.isFlying(player)) {
         	return false;
         }
         return check;

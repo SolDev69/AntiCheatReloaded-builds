@@ -22,6 +22,7 @@ package com.rammelkast.anticheatreloaded.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
@@ -80,8 +83,8 @@ public final class Utilities {
 	 * @return true if the player should be unable to stand here
 	 */
 	public static boolean cantStandAtExp(final Location location) {
-		return cantStandAt(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
-				location.getZ()).getBlock());
+		return cantStandAt(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getZ())
+				.getBlock());
 	}
 
 	/**
@@ -134,7 +137,7 @@ public final class Utilities {
 		final Material type = block.getType();
 		return type.equals(XMaterial.SLIME_BLOCK.parseMaterial());
 	}
-	
+
 	public static boolean couldBeOnBoat(final Player player) {
 		return couldBeOnBoat(player, 0.35, false);
 	}
@@ -159,12 +162,11 @@ public final class Utilities {
 	 * @return true if the player could be standing on ice
 	 */
 	public static boolean couldBeOnIce(final Location location) {
-		return isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
-				location.getZ()))
-				|| isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.26D,
-						location.getZ()))
-				|| isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
-						location.getZ()));
+		return isNearIce(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getZ()))
+				|| isNearIce(
+						new Location(location.getWorld(), location.getX(), location.getY() - 0.26D, location.getZ()))
+				|| isNearIce(
+						new Location(location.getWorld(), location.getX(), location.getY() - 0.51D, location.getZ()));
 	}
 
 	public static boolean isNearIce(final Location location) {
@@ -188,8 +190,8 @@ public final class Utilities {
 	public static boolean couldBeOnHalfblock(final Location location) {
 		return isNearHalfblock(
 				new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getZ()))
-				|| isNearHalfblock(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
-						location.getZ()));
+				|| isNearHalfblock(
+						new Location(location.getWorld(), location.getX(), location.getY() - 0.51D, location.getZ()));
 	}
 
 	public static boolean isNearHalfblock(final Location location) {
@@ -223,16 +225,15 @@ public final class Utilities {
 	 * @return true if the player could be standing on slime
 	 */
 	public static boolean couldBeOnSlime(final Location location) {
-		return isNearSlime(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
-				location.getZ()))
-				|| isNearSlime(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
-						location.getZ()));
+		return isNearSlime(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getZ()))
+				|| isNearSlime(
+						new Location(location.getWorld(), location.getX(), location.getY() - 0.51D, location.getZ()));
 	}
 
 	public static boolean isNearSlime(final Location location) {
 		return isCollisionPoint(location, material -> material == XMaterial.SLIME_BLOCK.parseMaterial());
 	}
-	
+
 	/**
 	 * Determine whether a player could be standing on soil
 	 *
@@ -240,14 +241,14 @@ public final class Utilities {
 	 * @return true if the player could be standing on soil
 	 */
 	public static boolean couldBeOnSoil(final Location location) {
-		return isNearSoil(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D,
-				location.getZ()))
-				|| isNearSoil(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
-						location.getZ()));
+		return isNearSoil(new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getZ()))
+				|| isNearSoil(
+						new Location(location.getWorld(), location.getX(), location.getY() - 0.51D, location.getZ()));
 	}
 
 	public static boolean isNearSoil(final Location location) {
-		return isCollisionPoint(location, material -> material == XMaterial.SOUL_SOIL.parseMaterial() || material == XMaterial.SOUL_SAND.parseMaterial());
+		return isCollisionPoint(location, material -> material == XMaterial.SOUL_SOIL.parseMaterial()
+				|| material == XMaterial.SOUL_SAND.parseMaterial());
 	}
 
 	/**
@@ -374,7 +375,7 @@ public final class Utilities {
 		Material type = block.getType();
 		return type.name().endsWith("WALL") || type.name().endsWith("FENCE") || type.name().endsWith("FENCE_GATE");
 	}
-	
+
 	public static boolean isNearWall(final Location location) {
 		return isWall(location.getBlock()) || isWall(location.getBlock().getRelative(BlockFace.NORTH))
 				|| isWall(location.getBlock().getRelative(BlockFace.SOUTH))
@@ -400,7 +401,7 @@ public final class Utilities {
 				|| block.getRelative(BlockFace.EAST).getType() == XMaterial.LILY_PAD.parseMaterial()
 				|| block.getRelative(BlockFace.WEST).getType() == XMaterial.LILY_PAD.parseMaterial();
 	}
-	
+
 	/**
 	 * Determine whether a player is standing on a carpet
 	 *
@@ -748,9 +749,10 @@ public final class Utilities {
 		int rounded = (int) value;
 		return value < rounded ? rounded - 1 : rounded;
 	}
-	
+
 	/**
 	 * Computes the difference between two angles
+	 * 
 	 * @param a Angle A
 	 * @param b Angle B
 	 * @return the difference between two angles
@@ -759,10 +761,12 @@ public final class Utilities {
 		float diff = Math.abs(a - b);
 		final float altDiff = b + 360 - a;
 		final float altAltDiff = a + 360 - b;
-        if (altDiff < diff) diff = altDiff;
-        if (altAltDiff < diff) diff = altAltDiff;
-        return diff;
-    }
+		if (altDiff < diff)
+			diff = altDiff;
+		if (altAltDiff < diff)
+			diff = altAltDiff;
+		return diff;
+	}
 
 	/**
 	 * Calculates the greatest common divider
@@ -788,6 +792,49 @@ public final class Utilities {
 			}
 		}
 		return materials.stream().anyMatch(predicate);
+	}
+
+	/**
+	 * @author Elevated
+	 * @param data - The set of data you want to find the variance from
+	 * @return - The variance of the numbers.
+	 *
+	 * @See - https://en.wikipedia.org/wiki/Variance
+	 */
+	public static double getVariance(final Collection<? extends Number> data) {
+		int count = 0;
+
+		double sum = 0.0;
+		double variance = 0.0;
+
+		double average;
+
+		// Increase the sum and the count to find the average and the standard deviation
+		for (final Number number : data) {
+			sum += number.doubleValue();
+			++count;
+		}
+
+		average = sum / count;
+
+		// Run the standard deviation formula
+		for (final Number number : data) {
+			variance += Math.pow(number.doubleValue() - average, 2.0);
+		}
+
+		return variance;
+	}
+
+	
+	/**
+	 * Gets the allowed player movement speed through the "GENERIC_MOVEMENT_SPEED"
+	 * attribute
+	 * 
+	 * @return the allowed player movement speed
+	 */
+	public static double getMovementSpeed(final Player player) {
+		final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+		return attribute.getValue();
 	}
 	
 	static {
@@ -941,7 +988,7 @@ public final class Utilities {
 			CLIMBABLE.add(XMaterial.HONEY_BLOCK.parseMaterial());
 		}
 		// End 1.15 objects
-		
+
 		// Start 1.16 objects
 		if (currentVersion.isAtLeast(MinecraftVersion.NETHER_UPDATE)) {
 			CLIMBABLE.add(XMaterial.TWISTING_VINES.parseMaterial());

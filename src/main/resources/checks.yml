@@ -52,6 +52,11 @@ elytrafly:
 # Speed check settings
 # Checks if a player moves too fast
 speed:
+  # Checks movement speed through prediction
+  # Debugs as 'moved unexpectedly'
+  predict:
+    # Should this part of the check be enabled?
+    enabled: true
   # Checks movement speed in the air
   # Debugs as 'moved too fast in air'
   airSpeed:
@@ -157,9 +162,9 @@ killaura:
     # Maximum base reach distances
     baseMaxValue:
       # Maximum base reach value
-      normal: 3.5
+      normal: 3.55
       # Maximum base reach value when a player has velocity
-      velocitized: 4.0
+      velocitized: 4.05
     # Settings for lag compensation
     lagCompensation:
       # Basic extra allowed reach when a player is lagging
@@ -188,6 +193,31 @@ killaura:
     minElapsedTime: 5
     # Amount of suspicious combat packet situations before flagging
     vlBeforeFlag: 3
+  # Checks player pitch behaviour during combat
+  # Debugs as 'had suspicious aim behaviour'
+  variance:
+    # Should this part of the check be enabled?
+    enabled: true
+    # How many samples should be taken (increase in case of false positives)
+    samples: 8
+  # Checks player pitch and yaw behaviour during combat
+  # Debugs as 'repeated aim pattern'
+  repeatedAim:
+    # Should this part of the check be enabled?
+    enabled: true
+  # Checks if the player is hitting through objects
+  # Debugs as 'hit through object'
+  throughWalls:
+    # Should this part of the check be enabled?
+    enabled: true
+    # Minimum server TPS needed for the packet order subcheck to be active
+    minimumTps: 17.5
+    # Should this check be disabled for lagging players? (this can be spoofed!)
+    disableForLagging: true
+    # Amount to expand hitbox by
+    expand: 0.3
+    # Amount of illegal hits before flagging
+    vlBeforeFlag: 4
 # Aimbot check settings
 # Checks if the player is sending aimbot-like movements
 aimbot:
@@ -196,7 +226,7 @@ aimbot:
   # Maximum pitch acceleration for check to consider aim illegal
   minAcceleration: 5.5
   # Maximum mod value for check to consider aim illegal
-  maxMod: 0.001
+  maxMod: 8.0E-4
 # Criticals check settings
 # Checks if the player tries to do a crit without needed conditions
 criticals:
@@ -362,6 +392,13 @@ fastprojectile:
   projectilesToWait: 10
   # The minimum time in milliseconds it should have taken for the player fire 'projectilesToWait' projectiles
   minimumTime: 1500
+# FastBreak check settings
+# Checks if the player breaks too many blocks in too little time
+fastbreak:
+  # Should this check be enabled?
+  enabled: true
+  # Minimum server TPS needed for FastBreak to be active
+  minimumTps: 15.0
 # ItemSpam check settings
 # Checks if the player drops items too fast
 itemspam:

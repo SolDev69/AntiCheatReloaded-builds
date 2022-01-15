@@ -36,13 +36,13 @@ import com.rammelkast.anticheatreloaded.check.combat.KillAuraCheck;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
-public final class IllegalInteract {
+public final class IllegalInteractCheck {
 
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
-	public static CheckResult performCheck(final Player player, final Event event) {
+	public static CheckResult runCheck(final Player player, final Event event) {
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		if (event instanceof BlockPlaceEvent && checksConfig.isSubcheckEnabled(CheckType.ILLEGAL_INTERACT, "place")) {
 			return checkBlockPlace(player, (BlockPlaceEvent) event);
@@ -105,7 +105,7 @@ public final class IllegalInteract {
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		final double distance = player.getGameMode() == GameMode.CREATIVE ? 6.0
 				: player.getLocation().getDirection().getY() > 0.9 ? 6.0 : 5.5;
-		final Block targetBlock = VersionUtil.getTargetBlock(player, ((int) Math.ceil(distance)));
+		final Block targetBlock = VersionLib.getTargetBlock(player, ((int) Math.ceil(distance)));
 		if (targetBlock == null) {
 			// TODO better check here
 			return true;

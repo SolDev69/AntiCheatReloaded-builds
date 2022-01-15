@@ -39,6 +39,11 @@ public final class NoSlowCheck {
 	public static final Map<UUID, Integer> VIOLATIONS = new HashMap<UUID, Integer>();
 
 	public static void runCheck(final Player player, final PacketEvent event) {
+		if (event.isCancelled()) {
+			// Do not check if cancelled
+			return;
+		}
+		
 		if (!AntiCheatReloaded.getManager().getCheckManager().willCheck(player, CheckType.NOSLOW)) {
 			return;
 		}

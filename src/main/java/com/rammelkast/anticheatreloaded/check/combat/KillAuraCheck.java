@@ -22,14 +22,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import com.google.common.collect.EvictingQueue;
 import com.rammelkast.anticheatreloaded.AntiCheatReloaded;
 import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckResult.Result;
@@ -38,14 +43,23 @@ import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.MovementManager;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 public final class KillAuraCheck {
 
 	// Angle check
 	public static final Map<UUID, Integer> ANGLE_FLAGS = new HashMap<UUID, Integer>();
+
 	// PacketOrder check
 	public static final Map<UUID, Integer> PACKETORDER_FLAGS = new HashMap<UUID, Integer>();
+
+	// ThroughWalls check
+	public static final Map<UUID, Integer> THROUGHWALLS_FLAGS = new HashMap<UUID, Integer>();
+	private static final double RAY_LENGTH = 4.5;
+
+	// Variance check
+	public static final Map<UUID, EvictingQueue<Float>> FACTOR_MAP = new HashMap<UUID, EvictingQueue<Float>>();
+
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 
 	public static CheckResult checkReach(final Player player, final Entity target) {
@@ -68,7 +82,8 @@ public final class KillAuraCheck {
 			allowedReach += 1.5D;
 		}
 		// Lag compensation
-		final double lagExtraReach = checksConfig.getDouble(CheckType.KILLAURA, "reach", "lagCompensation.lagExtraReach");
+		final double lagExtraReach = checksConfig.getDouble(CheckType.KILLAURA, "reach",
+				"lagCompensation.lagExtraReach");
 		final double pingCompensation = checksConfig.getDouble(CheckType.KILLAURA, "reach",
 				"lagCompensation.pingCompensation");
 		allowedReach += user.getPing() * pingCompensation;
@@ -85,11 +100,11 @@ public final class KillAuraCheck {
 		// Velocity compensation
 		final double velocityMultiplier = checksConfig.getDouble(CheckType.KILLAURA, "reach", "velocityMultiplier");
 		allowedReach += Math.abs(target.getVelocity().length()) * velocityMultiplier;
-		final double reachedDistance = Utilities.roundDouble(((LivingEntity) target).getLocation().toVector()
-				.distance(player.getLocation().toVector()), 2);
+		final double reachedDistance = Utilities.roundDouble(
+				((LivingEntity) target).getLocation().toVector().distance(player.getLocation().toVector()), 2);
 		if (reachedDistance > Utilities.roundDouble(allowedReach, 2)) {
-			return new CheckResult(CheckResult.Result.FAILED, "Reach",
-					"reached too far (distance=" + reachedDistance + ", max=" + Utilities.roundDouble(allowedReach, 2) + ")");
+			return new CheckResult(CheckResult.Result.FAILED, "Reach", "reached too far (distance=" + reachedDistance
+					+ ", max=" + Utilities.roundDouble(allowedReach, 2) + ")");
 		}
 		return PASS;
 	}
@@ -97,12 +112,12 @@ public final class KillAuraCheck {
 	public static CheckResult checkAngle(final Player player, final EntityDamageEvent event) {
 		final UUID uuid = player.getUniqueId();
 		final Entity entity = event.getEntity();
-		
+
 		// Do not check while in vehicles
-		if (player.getVehicle() != null || entity.getVehicle() != null || VersionUtil.isRiptiding(player)) {
+		if (player.getVehicle() != null || entity.getVehicle() != null || VersionLib.isRiptiding(player)) {
 			return PASS;
 		}
-		
+
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 
 		// Check if enabled
@@ -149,9 +164,9 @@ public final class KillAuraCheck {
 		if (!checksConfig.isSubcheckEnabled(CheckType.KILLAURA, "packetOrder")) {
 			return PASS;
 		}
-		
-		if (user.isLagging() || (System.currentTimeMillis() - movementManager.lastTeleport) <= 100
-				|| AntiCheatReloaded.getPlugin().getTPS() < checksConfig.getDouble(CheckType.KILLAURA, "packetOrder", "minimumTps")) {
+
+		if (user.isLagging() || (System.currentTimeMillis() - movementManager.lastTeleport) <= 100 || AntiCheatReloaded
+				.getPlugin().getTPS() < checksConfig.getDouble(CheckType.KILLAURA, "packetOrder", "minimumTps")) {
 			return PASS;
 		}
 
@@ -166,14 +181,126 @@ public final class KillAuraCheck {
 			int vlBeforeFlag = checksConfig.getInteger(CheckType.KILLAURA, "packetOrder", "vlBeforeFlag");
 			if (flags >= vlBeforeFlag) {
 				PACKETORDER_FLAGS.remove(uuid);
-				return new CheckResult(Result.FAILED, "PacketOrder", "suspicious packet order (elapsed=" + elapsed + ")");
+				return new CheckResult(Result.FAILED, "PacketOrder",
+						"suspicious packet order (elapsed=" + elapsed + ")");
 			}
 
 			PACKETORDER_FLAGS.put(uuid, flags + 1);
 		}
 		return PASS;
 	}
-	
+
+	public static CheckResult checkVariance(final Player player) {
+		final UUID uuid = player.getUniqueId();
+		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(uuid);
+		final MovementManager movementManager = user.getMovementManager();
+		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
+
+		// Check if enabled
+		if (!checksConfig.isSubcheckEnabled(CheckType.KILLAURA, "variance")) {
+			return PASS;
+		}
+
+		final int samples = checksConfig.getInteger(CheckType.KILLAURA, "variance", "samples");
+		if (movementManager.deltaPitch > 0.0f && movementManager.lastDeltaPitch > 0.0f
+				&& movementManager.deltaYaw > 5.0f) {
+			final float factor = movementManager.deltaPitch % movementManager.lastDeltaPitch;
+			final EvictingQueue<Float> queue = FACTOR_MAP.getOrDefault(uuid, EvictingQueue.create(samples));
+			queue.add(factor);
+			if (queue.size() >= samples) {
+				final double variance = Utilities.getVariance(queue);
+				if (variance < 0.25) {
+					FACTOR_MAP.put(uuid, queue);
+					return new CheckResult(Result.FAILED, "Variance",
+							"had suspicous aim behaviour (variance: " + Utilities.roundDouble(variance, 3) + ")");
+				}
+			}
+			FACTOR_MAP.put(uuid, queue);
+		}
+
+		return PASS;
+	}
+
+	public static CheckResult checkRepeatedAim(final Player player) {
+		final UUID uuid = player.getUniqueId();
+		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(uuid);
+		final MovementManager movementManager = user.getMovementManager();
+		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
+
+		// Check if enabled
+		if (!checksConfig.isSubcheckEnabled(CheckType.KILLAURA, "repeatedAim")) {
+			return PASS;
+		}
+
+		final float deltaYaw = movementManager.deltaYaw;
+		final float lastDeltaYaw = movementManager.lastDeltaYaw;
+		final float deltaPitch = movementManager.deltaPitch;
+		final float lastDeltaPitch = movementManager.lastDeltaPitch;
+		if (deltaYaw > 0.0f && Math.abs(deltaYaw - lastDeltaYaw) < 1e-5 && deltaPitch > 10.0f) {
+			return new CheckResult(Result.FAILED, "RepeatedAim",
+					"repeated aim pattern (type=yaw, deltaPitch=" + Utilities.roundFloat(deltaPitch, 1) + ")");
+		} else if (deltaPitch > 0.0f && Math.abs(deltaPitch - lastDeltaPitch) < 1e-5 && deltaYaw > 12.0f) {
+			return new CheckResult(Result.FAILED, "RepeatedAim",
+					"repeated aim pattern (type=pitch, deltaYaw=" + Utilities.roundFloat(deltaYaw, 1) + ")");
+		}
+		return PASS;
+	}
+
+	public static CheckResult checkThroughWalls(final Player player, final Entity target) {
+		final UUID uuid = player.getUniqueId();
+		final User user = AntiCheatReloaded.getManager().getUserManager().getUser(uuid);
+		final MovementManager movementManager = user.getMovementManager();
+		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
+
+		// Check if enabled
+		if (!checksConfig.isSubcheckEnabled(CheckType.KILLAURA, "throughWalls")) {
+			return PASS;
+		}
+
+		if ((user.isLagging() && checksConfig.getBoolean(CheckType.KILLAURA, "throughWalls", "disableForLagging"))
+				|| (System.currentTimeMillis() - movementManager.lastTeleport) <= 100 || AntiCheatReloaded.getPlugin()
+						.getTPS() < checksConfig.getDouble(CheckType.KILLAURA, "throughWalls", "minimumTps")) {
+			return PASS;
+		}
+
+		if (Math.abs(player.getLocation().getPitch()) > 30.0f) {
+			return PASS;
+		}
+
+		final Location eyes = player.getEyeLocation().clone();
+		final World world = player.getWorld();
+		final double expansion = checksConfig.getDouble(CheckType.KILLAURA, "throughWalls", "expand");
+		final RayTraceResult result = world.rayTrace(eyes, eyes.getDirection(), RAY_LENGTH, FluidCollisionMode.NEVER,
+				true, expansion, entity -> entity.equals(target));
+		if (player.getLocation().toVector().clone().setY(0.0)
+				.distance(target.getLocation().toVector().clone().setY(0)) <= expansion) {
+			return PASS;
+		}
+
+		if (result != null) {
+			final Block block = result.getHitBlock();
+			final Entity entity = result.getHitEntity();
+			final double distance = result.getHitPosition().distance(eyes.toVector());
+			if (entity == null && block != null && distance > 0.3) {
+				final int flags = THROUGHWALLS_FLAGS.getOrDefault(uuid, 0) + 1;
+				if (flags > checksConfig.getInteger(CheckType.KILLAURA, "throughWalls", "vlBeforeFlag")) {
+					THROUGHWALLS_FLAGS.put(uuid, 0);
+					return new CheckResult(Result.FAILED, "ThroughWalls",
+							"hit through object (distance: " + Utilities.roundDouble(distance, 2) + ", block: "
+									+ block.getType().name().toLowerCase() + ", pitch: "
+									+ Utilities.roundFloat(player.getLocation().getPitch(), 1) + ")");
+				}
+				THROUGHWALLS_FLAGS.put(uuid, flags);
+			} else {
+				final int flags = THROUGHWALLS_FLAGS.getOrDefault(uuid, 1) - 1;
+				THROUGHWALLS_FLAGS.put(uuid, flags);
+			}
+		} else {
+			// TODO should be covered by angle & reach check, but maybe continue anyway?
+		}
+		return PASS;
+	}
+
 	public static double calculateYawDifference(final Location from, final Location to) {
 		final Location clonedFrom = from.clone();
 		final Vector startVector = clonedFrom.toVector();

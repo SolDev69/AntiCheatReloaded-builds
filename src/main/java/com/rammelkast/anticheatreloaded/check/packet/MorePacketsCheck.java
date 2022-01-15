@@ -43,6 +43,11 @@ public final class MorePacketsCheck {
 	public static final Map<UUID, Double> PACKET_BALANCE = new HashMap<UUID, Double>();
 
 	public static void runCheck(final Player player, final PacketEvent event) {
+		if (event.isCancelled()) {
+			// Do not check if cancelled
+			return;
+		}
+		
 		// Confirm if we should even check for MorePackets
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		final double tps = AntiCheatReloaded.getPlugin().getTPS();

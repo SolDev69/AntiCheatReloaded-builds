@@ -73,6 +73,8 @@ public final class MovementManager {
 	public Distance lastDistance = new Distance();
 	// Movement acceleration
 	public double acceleration;
+	// Last movement acceleration
+	public double lastAcceleration;
 	// Is the block above solid
 	public boolean topSolid;
 	// Is the block below solid
@@ -81,6 +83,8 @@ public final class MovementManager {
 	public boolean halfMovement;
 	// If the player is on the ground (determined clientside!)
 	public boolean onGround;
+	// If the player was on the ground (determined clientside!)
+	public boolean wasOnGround;
 	// Ticks counter for last halfMovement
 	public int halfMovementHistoryCounter = 0;
 	// Time of last teleport
@@ -107,12 +111,16 @@ public final class MovementManager {
 	public long lastUpdate;
 	// Last location
 	public Location lastLocation;
+	
+	/**
+	 * Used by prediction speed check
+	 */
+	public float friction;
+	public double adjusted;
 
 	@SuppressWarnings("deprecation")
 	public void handle(final Player player, final Location from, final Location to, final Distance distance) {
-		// TODO as of now, we "trust" the client to send the right thing
-		// This is checked for spoofing by "GroundFlight"
-		// Also seems to make NoFall cheats flag for speed lmao
+		this.wasOnGround = this.onGround;
 		this.onGround = player.isOnGround();
 		
 		this.lastLocation = from;
@@ -139,7 +147,7 @@ public final class MovementManager {
 		// Handle 1.9+ potion effects
 		if (MinecraftVersion.atOrAbove(MinecraftVersion.COMBAT_UPDATE)) {
 			for (PotionEffect effect : player.getActivePotionEffects()) {
-				if (!VersionUtil.isLevitationEffect(effect)) {
+				if (!VersionLib.isLevitationEffect(effect)) {
 					continue;
 				}
 				AntiCheatReloaded.getManager().getBackend().logLevitating(player, 1);
@@ -188,7 +196,7 @@ public final class MovementManager {
 			}
 		}
 
-		if (VersionUtil.isGliding(player)) {
+		if (VersionLib.isGliding(player)) {
 			this.elytraEffectTicks = 30;
 		} else {
 			if (this.elytraEffectTicks > 0) {
@@ -218,7 +226,7 @@ public final class MovementManager {
 			}
 		}
 
-		if (VersionUtil.isRiptiding(player)) {
+		if (VersionLib.isRiptiding(player)) {
 			this.riptideTicks = 30;
 		} else {
 			if (this.riptideTicks > 0) {
@@ -235,6 +243,7 @@ public final class MovementManager {
 				+ this.lastDistance.getZDifference() * this.lastDistance.getZDifference());
 		final double currentDistanceSq = Math.sqrt(distance.getXDifference() * distance.getXDifference()
 				+ distance.getZDifference() * distance.getZDifference());
+		this.lastAcceleration = this.acceleration;
 		this.acceleration = currentDistanceSq - lastDistanceSq;
 
 		this.lastMotionY = this.motionY;
@@ -245,7 +254,7 @@ public final class MovementManager {
 		final Location bottom = to.clone().add(0, -1, 0);
 		this.bottomSolid = bottom.getBlock().getType().isSolid();
 
-		if ((this.motionY > 0.42f && this.motionY <= 0.5625f)
+		if ((this.motionY >= 0.42f && this.motionY <= 0.5625f)
 				&& (Utilities.couldBeOnHalfblock(to) || Utilities.isNearBed(to))) {
 			this.halfMovement = true;
 			this.halfMovementHistoryCounter = 30;
@@ -263,4 +272,5 @@ public final class MovementManager {
 		// Update "good location"
 		user.setGoodLocation(from);
 	}
+
 }

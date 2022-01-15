@@ -37,6 +37,7 @@ import com.rammelkast.anticheatreloaded.check.combat.VelocityCheck;
 import com.rammelkast.anticheatreloaded.check.movement.ElytraCheck;
 import com.rammelkast.anticheatreloaded.check.movement.FlightCheck;
 import com.rammelkast.anticheatreloaded.check.movement.NoSlowCheck;
+import com.rammelkast.anticheatreloaded.check.movement.SpeedCheck;
 import com.rammelkast.anticheatreloaded.check.packet.MorePacketsCheck;
 import com.rammelkast.anticheatreloaded.check.player.NoFallCheck;
 import com.rammelkast.anticheatreloaded.config.Configuration;
@@ -129,9 +130,13 @@ public class Backend {
 		ElytraCheck.JUMP_Y_VALUE.remove(uuid);
 		KillAuraCheck.ANGLE_FLAGS.remove(uuid);
 		KillAuraCheck.PACKETORDER_FLAGS.remove(uuid);
+		KillAuraCheck.THROUGHWALLS_FLAGS.remove(uuid);
 		FlightCheck.MOVING_EXEMPT.remove(uuid);
 		NoSlowCheck.LAST_RELEASE.remove(uuid);
 		NoSlowCheck.VIOLATIONS.remove(uuid);
+		SpeedCheck.PREDICT_BUFFER.remove(uuid);
+		SpeedCheck.AIRSPEED_BUFFER.remove(uuid);
+		SpeedCheck.AIRACCELERATION_BUFFER.remove(uuid);
 	}
 
 	public Magic getMagic() {

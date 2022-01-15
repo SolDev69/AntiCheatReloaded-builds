@@ -36,6 +36,11 @@ import com.rammelkast.anticheatreloaded.util.Utilities;
 public final class BadPacketsCheck {
 
 	public static void runCheck(final Player player, final PacketEvent event) {
+		if (event.isCancelled()) {
+			// Do not check if cancelled
+			return;
+		}
+		
 		final Backend backend = AntiCheatReloaded.getManager().getBackend();
 		// Confirm if we should even check for BadPackets
 		if (!AntiCheatReloaded.getManager().getCheckManager().willCheck(player, CheckType.BADPACKETS)
@@ -48,7 +53,7 @@ public final class BadPacketsCheck {
 		final float pitch = packet.getFloat().read(1);
 		// Check for derp
 		if (Math.abs(pitch) > 90) {
-			flag(player, event, "had an illegal pitch");
+			flag(player, event, "had an illegal pitch", null);
 			return;
 		}
 
@@ -78,27 +83,24 @@ public final class BadPacketsCheck {
 		if (distanceHorizontal > maxDistanceHorizontal) {
 			flag(player, event,
 					"moved too far between packets (HT, distance=" + Utilities.roundDouble(distanceHorizontal, 1)
-							+ ", max=" + Utilities.roundDouble(maxDistanceHorizontal, 1) + ")");
+							+ ", max=" + Utilities.roundDouble(maxDistanceHorizontal, 1) + ")", user.getGoodLocation(previous));
 			return;
 		}
 
-		if (distanceVertical < -4.0D && user.getVelocityTracker().getVertical() != 0.0D) {
+		if (distanceVertical < -4.0D && user.getVelocityTracker().getVertical() == 0.0D) {
 			flag(player, event, "moved too far between packets (VT, distance="
-					+ Utilities.roundDouble(Math.abs(distanceVertical), 1) + ", max=4.0)");
+					+ Utilities.roundDouble(Math.abs(distanceVertical), 1) + ", max=4.0)", user.getGoodLocation(previous));
 			return;
 		}
 	}
 
-	private static void flag(final Player player, final PacketEvent event, final String message) {
+	private static void flag(final Player player, final PacketEvent event, final String message, final Location setback) {
 		event.setCancelled(true);
 		// We are currently not in the main server thread, so switch
-		AntiCheatReloaded.sendToMainThread(new Runnable() {
-			@Override
-			public void run() {
-				EventListener.log(new CheckResult(CheckResult.Result.FAILED, message).getMessage(), player,
-						CheckType.BADPACKETS, null);
-				player.teleport(player.getLocation());
-			}
+		AntiCheatReloaded.sendToMainThread(() -> {
+			EventListener.log(new CheckResult(CheckResult.Result.FAILED, message).getMessage(), player,
+					CheckType.BADPACKETS, null);
+			player.teleport(setback != null ? setback : player.getLocation());
 		});
 	}
 

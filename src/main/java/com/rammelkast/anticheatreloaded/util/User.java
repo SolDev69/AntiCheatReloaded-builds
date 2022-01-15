@@ -50,7 +50,6 @@ public final class User {
 	private boolean isWaitingOnLevelSync;
 	private Timestamp levelSyncTimestamp;
 
-	private long lastServerPing, lastClientPong;
 	private int ping = -1;
 	private int lastPing = -1;
 
@@ -68,7 +67,7 @@ public final class User {
 		this.uuid = uuid;
 		this.name = getPlayer() != null && getPlayer().isOnline() ? getPlayer().getName() : "";
 		this.id = getPlayer() != null && getPlayer().isOnline() ? getPlayer().getEntityId() : -1;
-		this.ping = getPlayer() != null && getPlayer().isOnline() ? VersionUtil.getPlayerPing(getPlayer()) : -1;
+		this.ping = getPlayer() != null && getPlayer().isOnline() ? VersionLib.getPlayerPing(getPlayer()) : -1;
 		
 		this.movementManager = new MovementManager();
 		this.velocityTracker = new VelocityTracker(this.config.getMagic().VELOCITY_TIME());
@@ -402,20 +401,10 @@ public final class User {
 		return levelSyncTimestamp;
 	}
 
-	public void onServerPing() {
-		this.lastServerPing = System.currentTimeMillis();
-	}
-
-	public void onClientPong() {
-		this.lastClientPong = System.currentTimeMillis();
-		this.lastPing = this.ping;
-		this.ping = (int) (this.lastClientPong - this.lastServerPing);
-	}
-
 	public int getPing() {
 		final int ping = this.ping;
 		if (ping < 0) {
-			return VersionUtil.getPlayerPing(getPlayer());
+			return VersionLib.getPlayerPing(getPlayer());
 		}
 		return ping;
 	}

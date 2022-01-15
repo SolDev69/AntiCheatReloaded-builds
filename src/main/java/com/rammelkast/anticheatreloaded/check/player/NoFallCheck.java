@@ -32,7 +32,7 @@ import com.rammelkast.anticheatreloaded.check.CheckResult;
 import com.rammelkast.anticheatreloaded.check.CheckType;
 import com.rammelkast.anticheatreloaded.config.providers.Checks;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 public final class NoFallCheck {
 
@@ -40,18 +40,19 @@ public final class NoFallCheck {
 	
 	private static final CheckResult PASS = new CheckResult(CheckResult.Result.PASSED);
 	
-	public static CheckResult performCheck(final Player player, final double motionY) {
+	public static CheckResult runCheck(final Player player, final double motionY) {
 		final UUID uuid = player.getUniqueId();
 		final Backend backend = AntiCheatReloaded.getManager().getBackend();
 		final Checks checksConfig = AntiCheatReloaded.getManager().getConfiguration().getChecks();
 		if (player.getGameMode() != GameMode.CREATIVE && !player.isInsideVehicle() && !player.isSleeping()
 				&& !backend.isMovingExempt(player) && !backend.justPlaced(player) && !Utilities.isNearWater(player)
 				&& !Utilities.isInWeb(player) && !player.getLocation().getBlock().getType().name().endsWith("TRAPDOOR")
-				&& !VersionUtil.isSlowFalling(player)
+				&& !VersionLib.isSlowFalling(player)
 				&& !Utilities
 						.isNearShulkerBox(player.getLocation().getBlock().getRelative(BlockFace.DOWN).getLocation())
 				&& !Utilities.isNearClimbable(player)
-				&& !Utilities.isNearWater(player.getLocation().clone().subtract(0, 1.5, 0))) {
+				&& !Utilities.isNearWater(player.getLocation().clone().subtract(0, 1.5, 0))
+				&& !Utilities.couldBeOnBoat(player, 0.35, false)) {
 			if (player.getFallDistance() == 0.0) {
 				if (VIOLATIONS.get(uuid) == null) {
 					VIOLATIONS.put(uuid, 1);

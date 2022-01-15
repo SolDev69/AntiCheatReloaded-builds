@@ -66,15 +66,15 @@ public class EventListener implements Listener {
 		if (message == null || message.equals("")) {
 			if (debugMode) {
 				message = prefix + player.getName() + " failed "
-						+ type.getName();
+						+ type.getName() + (subcheck != null ? (" (" + subcheck + ")") : "");
 			} else {
 				message = prefix + player.getName() + " failed "
-						+ type.getName() + ChatColor.GOLD + " (x" + vlForType + ")";
+						+ type.getName() + (subcheck != null ? (" (" + subcheck + ")") : "") + ChatColor.GOLD + " (x" + vlForType + ")";
 			}
 		} else {
 			if (debugMode) {
 				message = prefix + player.getName() + " failed "
-						+ type.getName() + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + message
+						+ type.getName() + (subcheck != null ? (" (" + subcheck + ")") : "") + ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + message
 						+ ChatColor.DARK_GRAY + " | " + ChatColor.GRAY + "ping: " + user.getPing() + "ms"
 						+ ", tps: " + TPS_FORMAT.format(AntiCheatReloaded.getPlugin().getTPS());
 			} else {

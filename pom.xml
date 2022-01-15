@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.rammelkast.anticheatreloaded</groupId>
     <artifactId>AntiCheatReloaded</artifactId>
-    <version>1.10.3</version>
+    <version>1.11.0-PRE</version>
     <name>AntiCheatReloaded</name>
     <url>https://www.spigotmc.org/resources/anticheatreloaded.23799/</url>
     <properties>
@@ -61,6 +61,10 @@
                                 <relocation>
                                     <pattern>com.cryptomorin.xseries</pattern>
                                     <shadedPattern>com.rammelkast.anticheatreloaded.util</shadedPattern>
+                                </relocation>
+								<relocation>
+                                    <pattern>com.github.juliarn.npc</pattern>
+                                    <shadedPattern>com.rammelkast.anticheatreloaded.util.npc</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>

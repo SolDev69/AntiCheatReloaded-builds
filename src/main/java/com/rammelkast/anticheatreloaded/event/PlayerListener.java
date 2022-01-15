@@ -71,14 +71,14 @@ import com.rammelkast.anticheatreloaded.check.movement.FlightCheck;
 import com.rammelkast.anticheatreloaded.check.movement.SpeedCheck;
 import com.rammelkast.anticheatreloaded.check.movement.StrafeCheck;
 import com.rammelkast.anticheatreloaded.check.movement.WaterWalkCheck;
-import com.rammelkast.anticheatreloaded.check.player.IllegalInteract;
+import com.rammelkast.anticheatreloaded.check.player.IllegalInteractCheck;
 import com.rammelkast.anticheatreloaded.check.player.NoFallCheck;
 import com.rammelkast.anticheatreloaded.manage.AntiCheatManager;
 import com.rammelkast.anticheatreloaded.util.Distance;
 import com.rammelkast.anticheatreloaded.util.Permission;
 import com.rammelkast.anticheatreloaded.util.User;
 import com.rammelkast.anticheatreloaded.util.Utilities;
-import com.rammelkast.anticheatreloaded.util.VersionUtil;
+import com.rammelkast.anticheatreloaded.util.VersionLib;
 
 public final class PlayerListener extends EventListener {
 
@@ -313,7 +313,7 @@ public final class PlayerListener extends EventListener {
 		if (block != null
 				&& (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
 			if (getCheckManager().willCheck(player, CheckType.ILLEGAL_INTERACT)) {
-				final CheckResult result = IllegalInteract.performCheck(player, event);
+				final CheckResult result = IllegalInteractCheck.runCheck(player, event);
 				if (result.failed()) {
 					event.setCancelled(!silentMode());
 					log(result.getMessage(), player, CheckType.ILLEGAL_INTERACT, result.getSubCheck());
@@ -390,7 +390,7 @@ public final class PlayerListener extends EventListener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerMove(final PlayerMoveEvent event) {
 		final Player player = event.getPlayer();
 		if (getCheckManager().checkInWorld(player) && !getCheckManager().isOpExempt(player)) {
@@ -404,7 +404,7 @@ public final class PlayerListener extends EventListener {
 			user.setTo(to.getX(), to.getY(), to.getZ());
 			user.getMovementManager().handle(player, from, to, distance);
 
-			if (getCheckManager().willCheckQuick(player, CheckType.FLIGHT) && !VersionUtil.isFlying(player)) {
+			if (getCheckManager().willCheckQuick(player, CheckType.FLIGHT) && !VersionLib.isFlying(player)) {
 				final CheckResult result = FlightCheck.runCheck(player, distance);
 				if (result.failed()) {
 					if (!silentMode()) {
@@ -452,7 +452,7 @@ public final class PlayerListener extends EventListener {
 					&& getCheckManager().willCheck(player, CheckType.FLIGHT)
 					&& !Utilities.isClimbableBlock(player.getLocation().getBlock())
 					&& event.getFrom().getY() > event.getTo().getY()) {
-				final CheckResult result = NoFallCheck.performCheck(player, y);
+				final CheckResult result = NoFallCheck.runCheck(player, y);
 				if (result.failed()) {
 					if (!silentMode()) {
 						event.setTo(user.getGoodLocation(from.clone()));
@@ -464,43 +464,66 @@ public final class PlayerListener extends EventListener {
 			if (event.getTo() != event.getFrom()) {
 				final double x = distance.getXDifference();
 				final double z = distance.getZDifference();
-				if (getCheckManager().willCheckQuick(player, CheckType.SPEED)
-						&& getCheckManager().willCheck(player, CheckType.FLIGHT)) {
-					if (event.getFrom().getY() < event.getTo().getY()) {
-						final CheckResult result = SpeedCheck.checkVerticalSpeed(player, distance);
-						if (result.failed()) {
-							if (!silentMode()) {
-								event.setTo(user.getGoodLocation(from.clone()));
-							}
-							log(result.getMessage(), player, CheckType.SPEED, result.getSubCheck());
-						}
-					}
-					final CheckResult result = SpeedCheck.checkXZSpeed(player, x, z, event.getTo());
+				if (getCheckManager().willCheckQuick(player, CheckType.SPEED)) {
+					final CheckResult result = SpeedCheck.checkPredict(player, event.getTo());
 					if (result.failed()) {
 						if (!silentMode()) {
 							event.setTo(user.getGoodLocation(from.clone()));
 						}
+						
 						log(result.getMessage(), player, CheckType.SPEED, result.getSubCheck());
+						return;
 					}
 				}
+				
+				if (getCheckManager().willCheckQuick(player, CheckType.SPEED) && event.getFrom().getY() < event.getTo().getY()) {
+					final CheckResult result = SpeedCheck.checkVerticalSpeed(player, distance);
+					if (result.failed()) {
+						if (!silentMode()) {
+							event.setTo(user.getGoodLocation(from.clone()));
+						}
+						
+						log(result.getMessage(), player, CheckType.SPEED, result.getSubCheck());
+						return;
+					}
+				}
+				
+				if (getCheckManager().willCheckQuick(player, CheckType.SPEED)) {
+					final CheckResult result = SpeedCheck.checkXZSpeed(player, event.getTo());
+					if (result.failed()) {
+						if (!silentMode()) {
+							event.setTo(user.getGoodLocation(from.clone()));
+						}
+						
+						log(result.getMessage(), player, CheckType.SPEED, result.getSubCheck());
+						return;
+					}
+				}
+				
 				if (getCheckManager().willCheckQuick(player, CheckType.WATER_WALK)) {
 					final CheckResult result = WaterWalkCheck.runCheck(player, x, y, z);
 					if (result.failed()) {
 						if (!silentMode()) {
-							player.teleport(player.getLocation().clone().subtract(0, 0.42, 0));
+							player.teleport(player.getLocation().clone().subtract(0, 0.42f, 0));
 						}
+						
 						log(result.getMessage(), player, CheckType.WATER_WALK, result.getSubCheck());
+						return;
 					}
 				}
+				
 				if (getCheckManager().willCheckQuick(player, CheckType.SPIDER)) {
 					final CheckResult result = getBackend().checkSpider(player, y);
 					if (result.failed()) {
 						if (!silentMode()) {
 							event.setTo(user.getGoodLocation(from.clone()));
 						}
+						
 						log(result.getMessage(), player, CheckType.SPIDER, result.getSubCheck());
+						return;
 					}
 				}
+				
 				if (getCheckManager().willCheckQuick(player, CheckType.FASTLADDER)) {
 					// Does not use y value created before because that value is absolute
 					final CheckResult result = FastLadderCheck.runCheck(player,
@@ -509,19 +532,25 @@ public final class PlayerListener extends EventListener {
 						if (!silentMode()) {
 							event.setTo(user.getGoodLocation(from.clone()));
 						}
+						
 						log(result.getMessage(), player, CheckType.FASTLADDER, result.getSubCheck());
+						return;
 					}
 				}
+				
 				if (getCheckManager().willCheckQuick(player, CheckType.STRAFE)) {
 					final CheckResult result = StrafeCheck.runCheck(player, x, z, event.getFrom(), event.getTo());
 					if (result.failed()) {
 						if (!silentMode()) {
 							event.setTo(user.getGoodLocation(from.clone()));
 						}
+						
 						log(result.getMessage(), player, CheckType.STRAFE, result.getSubCheck());
+						return;
 					}
 				}
 			}
+			
 			if (getCheckManager().willCheckQuick(player, CheckType.VELOCITY)) {
 				final CheckResult result = VelocityCheck.runCheck(player, distance);
 				if (result.failed()) {
