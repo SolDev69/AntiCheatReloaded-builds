@@ -438,13 +438,12 @@ public final class Utilities {
 		return player.getLocation().getBlock().isLiquid()
 				|| player.getLocation().getBlock().getRelative(BlockFace.DOWN).isLiquid()
 				|| player.getLocation().getBlock().getRelative(BlockFace.UP).isLiquid()
-				|| (MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.AQUATIC_UPDATE)
+				|| MinecraftVersion.getCurrentVersion().isAtLeast(MinecraftVersion.AQUATIC_UPDATE)
 						&& (player.getLocation().getBlock().getType() == XMaterial.KELP_PLANT.parseMaterial()
 								|| player.getLocation().getBlock().getRelative(BlockFace.UP)
 										.getType() == XMaterial.KELP_PLANT.parseMaterial()
 								|| player.getLocation().getBlock().getRelative(BlockFace.DOWN)
-										.getType() == XMaterial.KELP_PLANT.parseMaterial())
-						&& isNearWater(player));
+										.getType() == XMaterial.KELP_PLANT.parseMaterial());
 	}
 
 	/**
@@ -546,6 +545,17 @@ public final class Utilities {
 	 */
 	public static boolean isNearClimbable(final Location location) {
 		return isCollisionPoint(location, material -> CLIMBABLE.contains(material));
+	}
+	
+	/**
+	 * Determine whether a location is near a climbable block
+	 *
+	 * @param location location to check
+	 * @param expand expansion factor
+	 * @return true if near climbable block
+	 */
+	public static boolean isNearClimbable(final Location location, final double expand) {
+		return isCollisionPoint(location, expand, material -> CLIMBABLE.contains(material));
 	}
 
 	/**
@@ -780,10 +790,14 @@ public final class Utilities {
 	}
 
 	public static boolean isCollisionPoint(final Location location, final Predicate<Material> predicate) {
+		return isCollisionPoint(location, 0.3, predicate);
+	}
+	
+	public static boolean isCollisionPoint(final Location location, final double expand, final Predicate<Material> predicate) {
 		final ArrayList<Material> materials = new ArrayList<>();
-		for (double x = -0.3; x <= 0.3; x += 0.3) {
-			for (double y = -0.3; y <= 0.3; y += 0.3) {
-				for (double z = -0.3; z <= 0.3; z += 0.3) {
+		for (double x = -expand; x <= expand; x += expand) {
+			for (double y = -expand; y <= expand; y += expand) {
+				for (double z = -expand; z <= expand; z += expand) {
 					final Material material = location.clone().add(x, y, z).getBlock().getType();
 					if (material != null) {
 						materials.add(material);
@@ -976,6 +990,13 @@ public final class Utilities {
 		CLIMBABLE.add(XMaterial.VINE.parseMaterial());
 		CLIMBABLE.add(XMaterial.LADDER.parseMaterial());
 		CLIMBABLE.add(XMaterial.WATER.parseMaterial());
+		// Start 1.13 objects
+		if (currentVersion.isAtLeast(MinecraftVersion.AQUATIC_UPDATE)) {
+			CLIMBABLE.add(XMaterial.KELP.parseMaterial());
+			CLIMBABLE.add(XMaterial.KELP_PLANT.parseMaterial());
+		}
+		// End 1.13 objects
+
 		// Start 1.14 objects
 		if (currentVersion.isAtLeast(MinecraftVersion.VILLAGE_UPDATE)) {
 			CLIMBABLE.add(XMaterial.SCAFFOLDING.parseMaterial());

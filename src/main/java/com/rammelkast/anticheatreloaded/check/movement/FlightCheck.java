@@ -116,7 +116,7 @@ public final class FlightCheck {
 					&& (!Utilities.isNearWater(distance.getTo().clone().subtract(0, 1.5, 0))
 							&& distance.getTo().clone().subtract(0, 0.5, 0).getBlock().getType() != Material.AIR)) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirFlight",
-						"tried to fly on the Y-axis (mY=" + movementManager.motionY + ", max=" + maxMotionY + ")");
+						"tried to fly on the Y-axis (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ", max=" + Utilities.roundDouble(maxMotionY, 4) + ")");
 			}
 
 			// TODO falses when falling large distances
@@ -132,7 +132,7 @@ public final class FlightCheck {
 					&& !Utilities.isNearWater(distance.getFrom().clone().subtract(0, 0.51, 0))
 					&& velocityTracker.getVertical() == 0.0) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirFlight", "had too little Y dropoff (diff="
-						+ Math.abs(movementManager.motionY - movementManager.lastMotionY) + ")");
+						+ Utilities.roundDouble(Math.abs(movementManager.motionY - movementManager.lastMotionY), 4) + ")");
 			}
 		}
 		// End AirFlight
@@ -151,9 +151,10 @@ public final class FlightCheck {
 						|| Utilities.isNearBed(distance.getTo().clone().add(0, -0.51, 0)))
 						&& movementManager.motionY > 0.15))
 				&& movementManager.slimeInfluenceTicks == 0 && movementManager.elytraEffectTicks <= 25
-				&& !Utilities.couldBeOnBoat(player, 0.8, false))
+				&& !Utilities.couldBeOnBoat(player, 0.8, false)) {
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
-					"tried to climb air (mY=" + movementManager.motionY + ")");
+					"tried to climb air (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ")");
+		}
 
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.motionY > 0.42
 				&& movementManager.airTicks > 2 && !velocityTracker.isVelocitized()
@@ -163,7 +164,7 @@ public final class FlightCheck {
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))
 				&& movementManager.slimeInfluenceTicks == 0 && movementManager.elytraEffectTicks <= 25) {
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
-					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+					"tried to climb air (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ", at=" + movementManager.airTicks + ")");
 		}
 
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
@@ -173,7 +174,7 @@ public final class FlightCheck {
 						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))
 				&& !(Math.round(movementManager.motionY * 1000) == 396) && movementManager.airTicks == 15) {
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
-					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+					"tried to climb air (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ", at=" + movementManager.airTicks + ")");
 		}
 
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.lastMotionY > 0.0
@@ -183,14 +184,15 @@ public final class FlightCheck {
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
 				.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))) {
 			return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
-					"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+					"tried to climb air (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ", at=" + movementManager.airTicks + ")");
 		}
 
 		if (checksConfig.isSubcheckEnabled(CheckType.FLIGHT, "airClimb") && movementManager.airTicks >= minAirTicks
 				&& !velocityTracker.isVelocitized() && movementManager.slimeInfluenceTicks <= 0
 				&& movementManager.elytraEffectTicks <= 25
 				&& (System.currentTimeMillis() - movementManager.lastTeleport >= checksConfig
-						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))) {
+						.getInteger(CheckType.FLIGHT, "airClimb", "accountForTeleports"))
+				&& !Utilities.isNearClimbable(distance.getFrom(), 0.8)) {
 			// Config default base is 1200ms
 			// Ping clamped to max. 1000 to prevent spoofing for an advantage
 			int blockPlaceAccountingTime = (int) (checksConfig.getInteger(CheckType.FLIGHT, "airFlight",
@@ -209,7 +211,7 @@ public final class FlightCheck {
 					: 0.42;
 			if (movementManager.motionY > maxMotionY) {
 				return new CheckResult(CheckResult.Result.FAILED, "AirClimb",
-						"tried to climb air (mY=" + movementManager.motionY + ", at=" + movementManager.airTicks + ")");
+						"tried to climb air (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ", at=" + movementManager.airTicks + ")");
 			}
 		}
 		// End AirClimb
@@ -220,7 +222,7 @@ public final class FlightCheck {
 				&& Utilities.cantStandAt(distance.getFrom().getBlock().getRelative(BlockFace.DOWN))
 				&& Utilities.cantStandAt(distance.getTo().getBlock())) {
 			return new CheckResult(CheckResult.Result.FAILED, "GroundFlight",
-					"faked ground to fly (mY=" + movementManager.motionY + ", gt=" + movementManager.groundTicks + ")");
+					"faked ground to fly (mY=" + Utilities.roundDouble(movementManager.motionY, 4) + ", gt=" + movementManager.groundTicks + ")");
 		}
 		// End GroundFlight
 
@@ -246,7 +248,7 @@ public final class FlightCheck {
 				if (vl >= vlBeforeFlag) {
 					GRAVITY_VIOLATIONS.put(player.getUniqueId(), Math.max(0, vl - 2));
 					return new CheckResult(CheckResult.Result.FAILED, "Gravity",
-							"ignored gravity (offset=" + offset + ", at=" + movementManager.airTicks + ")");
+							"ignored gravity (offset=" + Utilities.roundDouble(offset, 4) + ", at=" + movementManager.airTicks + ")");
 				}
 			} else {
 				if (GRAVITY_VIOLATIONS.containsKey(player.getUniqueId())) {

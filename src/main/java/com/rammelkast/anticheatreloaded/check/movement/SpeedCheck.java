@@ -63,7 +63,6 @@ public final class SpeedCheck {
 	 * Largely based on Elevated's Frequency speed check
 	 * @see https://github.com/ElevatedDev/Frequency/blob/master/src/main/java/xyz/elevated/frequency/check/impl/speed/Speed.java
 	 * 
-	 * TODO fix falses with jumping under blocks
 	 * TODO fix falses with entity collisions
 	 */
 	public static CheckResult checkPredict(final Player player, final Location movingTowards) {
@@ -84,6 +83,7 @@ public final class SpeedCheck {
 		final VelocityTracker velocityTracker = user.getVelocityTracker();
 		
 		final double motion = movementManager.distanceXZ;
+		final boolean boxedIn = movementManager.topSolid && movementManager.bottomSolid;
 		final boolean sprinting = true; // TODO do this using packets
 		
 		double buffer = PREDICT_BUFFER.getOrDefault(uuid, 0.0);
@@ -94,7 +94,7 @@ public final class SpeedCheck {
 			}
 			
 			movementSpeed *= 0.16277136 / Math.pow((movementManager.friction *= 0.91f), 3);
-			if (!movementManager.onGround && movementManager.motionY >= 0.42f && sprinting) {
+			if (!movementManager.onGround && (movementManager.motionY >= 0.42f || (boxedIn && movementManager.motionY > 0.0f)) && sprinting) {
 				movementSpeed += 0.2f;
 			}
 		} else {
@@ -105,7 +105,9 @@ public final class SpeedCheck {
 		movementSpeed += velocityTracker.getHorizontal();
 		
 		final double factor = (motion - movementManager.adjusted) / movementSpeed;
-		if (factor > 1.001) {
+		final boolean exempted = Utilities.isCollisionPoint(movingTowards,
+				material -> material == XMaterial.HONEY_BLOCK.parseMaterial());
+		if (factor > 1.001 && !exempted) {
 			if (buffer++ > 2.5) {
 				buffer /= 2;
 				PREDICT_BUFFER.put(uuid, buffer);
